@@ -173,7 +173,72 @@ inline bool InfInt::operator != ( const InfInt& src ) const
 	return false;
 }
 
-inline InfInt InfInt::operator + ( const InfInt& src ) const;//
+inline InfInt operator - () const
+{
+	return InfInt( this->val, !this->pos );
+}
+
+inline InfInt InfInt::operator + ( const InfInt& src ) const
+{
+	if( this->pos && !src.pos )
+	{
+		return (*this) - InfInt( src.val, false );
+	}
+	else if( !this->pos && src.pos )
+	{
+		return src - InfInt( this->val, false );
+	}
+	else
+	{
+		InfInt dst;
+		uint64 carryIn = 0, carryOut = 0, i = 0, max, min, temp;
+		dst.pos = this->pos;
+		if( this->val.size() < pos.val.size() )
+		{
+			min = this.val.size();
+			max = pos.val.size();
+		}
+		else
+		{
+			max = this.val.size();
+			min = pos.val.size();
+		}
+		
+		// Positive adding:
+		
+		dst.val = this->val;
+		dst.val.resize( max+2, uint64(0) );
+		
+		while( true )
+		{
+			carryIn = carryOut;
+			carryOut ^= carryOut;
+			
+			temp = dst.val[i]
+			
+			if( i < src.val.size() )
+			{
+				temp += src.val[i];
+				//check if this->val[i] overflow with src.val[i]
+				if( temp < src.val[i] || temp < dst.val[i] )
+					++carryOut;
+			}
+			
+			dst.val[i] = temp;
+			dst.val[i] += carryIn;
+			//check if dst.val[i] overflow with carryIn
+			if( dst.val[i] < temp )
+				++carryOut;
+			
+			++i;
+		}
+		
+		dst.val.ClearLeadingZeros();
+	}
+	return InfInt();
+}
+
+/*
 inline InfInt InfInt::operator - ( const InfInt& src ) const;//
 inline InfInt InfInt::operator * ( const InfInt& src ) const;//
 inline InfInt InfInt::operator / ( const InfInt& src ) const;//
@@ -184,6 +249,7 @@ inline InfInt& InfInt::operator -= ( const InfInt& src );//
 inline InfInt& InfInt::operator *= ( const InfInt& src );//
 inline InfInt& InfInt::operator /= ( const InfInt& src );//
 inline InfInt& InfInt::operator %= ( const InfInt& src );//
+*/
 
 inline unsigned long long int InfInt::ToULL() const
 {
@@ -205,7 +271,17 @@ inline unsigned long long int InfInt::Size() const
 	return this->val.GetSize();
 }
 
-inline void InfInt::ToString( char * str, const unsigned long long int len ) const;//
+inline void InfInt::ToString( char * str, const unsigned long long int len ) const
+{
+	// only hexadecimal now
+	uint64 i = 0;
+	
+	for( ; i < this->val.size(); ++i )
+	{
+		sprintf( str+(i*16), "%llX", ............//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	}
+	
+}
 
 static inline InfInt InfInt::pow( const InfInt& val, const InfInt& exp );//
 static inline InfInt InfInt::sqrt( const InfInt& val );//

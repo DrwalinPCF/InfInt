@@ -13,10 +13,10 @@ class BoolTab
 protected:
 	
 	std::vector < uint64 > val;
+	inline void ClearLeadingZeros();
 	
 private:
 	
-	inline void ClearLeadingZeros();
 	
 public:
 	

@@ -3,6 +3,7 @@
 #define INFINT_H
 
 #include "BoolTab.h"
+#include <cstdio>
 
 class InfInt
 {
@@ -41,6 +42,7 @@ public:
 	inline bool operator == ( const InfInt& src ) const;
 	inline bool operator != ( const InfInt& src ) const;
 	
+	inline InfInt operator - () const;
 	inline InfInt operator + ( const InfInt& src ) const;
 	inline InfInt operator - ( const InfInt& src ) const;
 	inline InfInt operator * ( const InfInt& src ) const;
