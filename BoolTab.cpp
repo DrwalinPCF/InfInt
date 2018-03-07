@@ -9,12 +9,11 @@ inline void BoolTab::ClearLeadingZeros()
 	if( this->val.size() )
 	{
 		uint64 i = this->val.size();
+		
 		for( i = this->val.size(); i > 0; --i )
-		{
 			if( this->val[i-1] != 0 )
 				break;
-		}
-			
+		
 		this->val.resize( i );
 	}
 }
@@ -54,7 +53,7 @@ inline void BoolTab::SetBit( const uint64 pos, const bool value )
 			else
 			{
 				this->val[pos/BoolTab::bits] -= uint64(1) << uint64(pos%BoolTab::bits);
-				ClearLeadingZeros();
+				//ClearLeadingZeros();
 			}
 		}
 	}
@@ -72,6 +71,7 @@ inline BoolTab BoolTab::operator ~ ( void ) const
 	uint64 i = 0;
 	for( ; i < this->val.size(); ++i )
 		dst.val[i] = ~this->val[i];
+	return dst;
 }
 
 inline BoolTab BoolTab::operator & ( const BoolTab& src ) const
@@ -130,7 +130,7 @@ inline BoolTab BoolTab::operator << ( const uint64 src ) const
 		for( uint64 i = 0; i < this->val.size(); ++i )
 			dst.val[i+full+1] |= this->val[i] >> (bits-rest);
 	
-	dst.ClearLeadingZeros();
+	//dst.ClearLeadingZeros();
 	return dst;
 }
 
@@ -157,7 +157,7 @@ inline BoolTab BoolTab::operator >> ( const uint64 src ) const
 		for( uint64 i = full+1; i < this->val.size(); ++i )
 			dst.val[i-full-1] |= this->val[i] << (bits-rest);
 	
-	dst.ClearLeadingZeros();
+	//dst.ClearLeadingZeros();
 	return dst;
 }
 
@@ -187,7 +187,7 @@ inline BoolTab& BoolTab::operator <<= ( const uint64 src )
 		for( uint64 i = 0; i < temp.size(); ++i )
 			this->val[i+full+1] |= temp[i] >> (bits-rest);
 	
-	ClearLeadingZeros();
+	//ClearLeadingZeros();
 	return *this;
 }
 
@@ -222,7 +222,7 @@ inline BoolTab& BoolTab::operator >>= ( const uint64 src )
 		for( uint64 i = full+1; i < temp.size(); ++i )
 			this->val[i-full-1] |= temp[i] << (bits-rest);
 	
-	ClearLeadingZeros();
+	//ClearLeadingZeros();
 	return *this;
 }
 
@@ -360,7 +360,7 @@ inline void BoolTab::FromData( const void * data, const uint64 bytes )
 	this->val.resize( bytes/sizeof(uint64) + uint64(bytes%sizeof(uint64) ? 1 : 0 ) );
 	memset( &(this->val.front()), 0, this->val.size()*sizeof(uint64) );
 	memcpy( &(this->val.front()), data, bytes );
-	ClearLeadingZeros();
+	//ClearLeadingZeros();
 }
 
 BoolTab::BoolTab()

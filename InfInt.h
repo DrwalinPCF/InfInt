@@ -12,17 +12,19 @@ private:
 	BoolTab val;
 	bool pos;
 	
-	InfInt( const BoolTab& sval, const bool spos );
 	
-	const static InfInt zero( BoolTab(), true );
+	//const static InfInt zero( BoolTab(), 1 );
 	
 public:
 	
 	inline bool IsPositive() const;
 	inline bool IsNegative() const;
 	inline bool GetSign() const;
+	inline uint64 GetSize() const;
+	
 	inline InfInt& operator = ( const InfInt& src );
 	
+	inline InfInt operator ~ (void) const;
 	inline InfInt operator & ( const InfInt& src ) const;
 	inline InfInt operator | ( const InfInt& src ) const;
 	inline InfInt operator ^ ( const InfInt& src ) const;
@@ -42,7 +44,7 @@ public:
 	inline bool operator == ( const InfInt& src ) const;
 	inline bool operator != ( const InfInt& src ) const;
 	
-	inline InfInt operator - () const;
+	inline InfInt operator - ( void ) const;
 	inline InfInt operator + ( const InfInt& src ) const;
 	inline InfInt operator - ( const InfInt& src ) const;
 	inline InfInt operator * ( const InfInt& src ) const;
@@ -65,6 +67,8 @@ public:
 	static inline InfInt sqrt( const InfInt& val );
 	static inline InfInt log( const InfInt& base, const InfInt& val );
 	
+	InfInt();
+	
 	InfInt( const char * str );
 	InfInt( const void * data, const uint64 bytes );
 	InfInt( const long long int val );
@@ -75,6 +79,9 @@ public:
 	InfInt( const unsigned int val );
 	InfInt( const unsigned short val );
 	InfInt( const unsigned char val );
+	
+	InfInt( const BoolTab& sval, const bool spos );
+	static inline InfInt Make( const BoolTab& sval, const bool spos );
 };
 
 #endif

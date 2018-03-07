@@ -9,7 +9,17 @@ InfInt::InfInt( const BoolTab& sval, const bool spos )
 {
 	this->val = sval;
 	this->pos = spos;
+	this->val.ClearLeadingZeros();
 	if( this->val.GetSize() == 0 )		this->pos = true;
+}
+
+inline InfInt InfInt::Make( const BoolTab& sval, const bool spos )
+{
+	InfInt dst;
+	dst.val = sval;
+	dst.pos = spos;
+	dst.val.ClearLeadingZeros();
+	return dst;
 }
 
 inline bool InfInt::IsPositive() const
@@ -27,48 +37,59 @@ inline bool InfInt::GetSign() const
 	return this->pos;
 }
 
+inline uint64 InfInt::GetSize() const
+{
+	return this->val.GetSize();
+}
+
 inline InfInt& InfInt::operator = ( const InfInt& src )
 {
 	this->val = src.val;
 	this->pos = src.pos;
 }
 
+inline InfInt InfInt::operator ~ ( void ) const
+{
+	return InfInt::Make( ~(this->val), !(this->pos) );
+}
+
 inline InfInt InfInt::operator & ( const InfInt& src ) const
 {
-	return InfInt( this->val & src.val, this->pos && src.pos );
+	return InfInt::Make( this->val & src.val, this->pos && src.pos );
 }
 
 inline InfInt InfInt::operator | ( const InfInt& src ) const
 {
-	return InfInt( this->val | src.val, this->pos || src.pos );
+	return InfInt::Make( this->val | src.val, this->pos || src.pos );
 }
 
 inline InfInt InfInt::operator ^ ( const InfInt& src ) const
 {
-	return InfInt( this->val ^ src.val, this->pos ^^ src.pos );
+	return InfInt::Make( (this->val) ^ src.val, this->pos ^ src.pos );
 }
-
+/*
 inline InfInt InfInt::operator << ( const InfInt& src ) const
 {
 	if( src.val.val.size() )
-		return InfInt( src.pos ? (this->val<<src.val.val[0]) : (this->val>>src.val.val[0]), this->pos );
+		return InfInt::Make( src.pos ? (this->val<<src.val.val[0]) : (this->val>>src.val.val[0]), this->pos );
 	return *this;
 }
 
 inline InfInt InfInt::operator >> ( const InfInt& src ) const
 {
 	if( src.val.val.size() )
-		return InfInt( src.pos ? (this->val>>src.val.val[0]) : (this->val<<src.val.val[0]), this->pos );
+		return InfInt::Make( src.pos ? (this->val>>src.val.val[0]) : (this->val<<src.val.val[0]), this->pos );
 	if( this->val.GetSize() == 0 )		this->pos = true;
 	return *this;
 }
-
+*/
 
 inline InfInt& InfInt::operator &= ( const InfInt& src )
 {
 	this->val &= src.val;
 	this->pos = this->pos && src.pos;
 	if( this->val.GetSize() == 0 )		this->pos = true;
+	this->val.ClearLeadingZeros();
 	return *this;
 }
 
@@ -77,14 +98,16 @@ inline InfInt& InfInt::operator |= ( const InfInt& src )
 	this->val |= src.val;
 	this->pos = this->pos || src.pos;
 	if( this->val.GetSize() == 0 )		this->pos = true;
+	this->val.ClearLeadingZeros();
 	return *this;
 }
 
 inline InfInt& InfInt::operator ^= ( const InfInt& src )
 {
 	this->val ^= src.val;
-	this->pos = this->pos ^^ src.pos;
+	this->pos = this->pos ^ src.pos;
 	if( this->val.GetSize() == 0 )		this->pos = true;
+	this->val.ClearLeadingZeros();
 	return *this;
 }
 
@@ -97,6 +120,7 @@ inline InfInt& InfInt::operator <<= ( const InfInt& src )
 		else
 			(*this) >>= src.val.val[0];
 	}
+	this->val.ClearLeadingZeros();
 	return *this;
 }
 
@@ -110,6 +134,7 @@ inline InfInt& InfInt::operator >>= ( const InfInt& src )
 			(*this) <<= src.val.val[0];
 	}
 	if( this->val.GetSize() == 0 )		this->pos = true;
+	this->val.ClearLeadingZeros();
 	return *this;
 }
 
@@ -173,73 +198,120 @@ inline bool InfInt::operator != ( const InfInt& src ) const
 	return false;
 }
 
-inline InfInt operator - () const
+inline InfInt InfInt::operator - ( void ) const
 {
-	return InfInt( this->val, !this->pos );
+	return InfInt::Make( this->val, !this->pos );
 }
 
-inline InfInt InfInt::operator + ( const InfInt& src ) const
+inline InfInt InfInt::operator + ( const InfInt& src ) const//
 {
 	if( this->pos && !src.pos )
 	{
-		return (*this) - InfInt( src.val, false );
+		return (*this) - InfInt::Make( src.val, true );
 	}
 	else if( !this->pos && src.pos )
 	{
-		return src - InfInt( this->val, false );
+		return src - InfInt::Make( this->val, true );
 	}
-	else
+	else // this->pos == src.pos
 	{
 		InfInt dst;
 		uint64 carryIn = 0, carryOut = 0, i = 0, max, min, temp;
 		dst.pos = this->pos;
-		if( this->val.size() < pos.val.size() )
+		if( this->val.GetSize() < src.val.GetSize() )
 		{
-			min = this.val.size();
-			max = pos.val.size();
+			min = this->val.GetSize();
+			max = src.val.GetSize();
 		}
 		else
 		{
-			max = this.val.size();
-			min = pos.val.size();
+			max = this->val.GetSize();
+			min = src.val.GetSize();
 		}
 		
 		// Positive adding:
 		
 		dst.val = this->val;
-		dst.val.resize( max+2, uint64(0) );
+		dst.val.val.resize( (max+2)>max ? max+2 : (uint64(0)-uint64(1)), uint64(0) );
 		
-		while( true )
+		while( i < dst.val.GetSize() || carryOut )
 		{
 			carryIn = carryOut;
 			carryOut ^= carryOut;
 			
-			temp = dst.val[i]
+			temp = dst.val.val[i];
 			
-			if( i < src.val.size() )
+			if( i < src.val.GetSize() )
 			{
-				temp += src.val[i];
-				//check if this->val[i] overflow with src.val[i]
-				if( temp < src.val[i] || temp < dst.val[i] )
+				temp += src.val.val[i];
+				//check if this->val.val[i] overflow with src.val.val[i]
+				if( temp < src.val.val[i] || temp < dst.val.val[i] )
 					++carryOut;
 			}
 			
-			dst.val[i] = temp;
-			dst.val[i] += carryIn;
-			//check if dst.val[i] overflow with carryIn
-			if( dst.val[i] < temp )
+			dst.val.val[i] = temp;
+			dst.val.val[i] += carryIn;
+			//check if dst.val.val[i] overflow with carryIn
+			if( dst.val.val[i] < temp )
 				++carryOut;
 			
 			++i;
 		}
 		
 		dst.val.ClearLeadingZeros();
+		return dst;
+	}
+	return InfInt();
+}
+
+inline InfInt InfInt::operator - ( const InfInt& src ) const
+{
+	if( !this->pos && src.pos )
+	{
+		return InfInt::Make( this->val, false ) + InfInt::Make( src.val, false );
+	}
+	else if( this->pos && !src.pos )
+	{
+		return InfInt::Make( this->val, true ) + InfInt::Make( src.val, true );
+	}
+	// this->pos == src.pos
+	else if( !this->pos )
+	{
+		return - ( InfInt::Make( this->val, true ) - InfInt::Make( src.val, true ) );
+	}	
+	else
+	{
+		InfInt a = *this;
+		InfInt b = src;
+		
+		if( a.val > b.val )
+		{
+			/*
+			b.val = ~b.val;
+			b.val.val.resize( a.val.val.size(), uint64(0) - uint64(1) );
+			*/
+			
+			b.val.val.resize( a.val.val.size()+uint64(2), uint64(0) );
+			b.val = ~b.val;
+			
+			
+			InfInt dst;
+			dst = a + b + InfInt(1);
+			
+			if( dst.val.val.size() > 0 )
+				dst.val.val.resize( dst.val.val.size() - 1 );
+			dst.val.ClearLeadingZeros();
+			return dst;
+		}
+		else
+		{
+			return - ( b - a );
+		}
 	}
 	return InfInt();
 }
 
 /*
-inline InfInt InfInt::operator - ( const InfInt& src ) const;//
 inline InfInt InfInt::operator * ( const InfInt& src ) const;//
 inline InfInt InfInt::operator / ( const InfInt& src ) const;//
 inline InfInt InfInt::operator % ( const InfInt& src ) const;//
@@ -276,13 +348,42 @@ inline void InfInt::ToString( char * str, const unsigned long long int len ) con
 	// only hexadecimal now
 	uint64 i = 0;
 	
-	for( ; i < this->val.size(); ++i )
+	for( ; i < this->val.GetSize(); ++i )
 	{
-		sprintf( str+(i*16), "%llX", ............//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		sprintf( str+(i*16), "%16.16llX", this->val.val[(this->val.val.size()-1)-i] );
 	}
-	
+	str[i*16] = 0;
 }
 
+InfInt::InfInt()
+{
+	this->pos = true;
+	this->val.Clear();
+}
+
+InfInt::InfInt( const unsigned long long int val )
+{
+	this->pos = true;
+	this->val.val.resize( 1 );
+	this->val.val.front() = val;
+}
+
+InfInt::InfInt( const int val )
+{
+	this->val.val.resize( 1 );
+	if( val < 0 )
+	{
+		this->pos = false;
+		this->val.val.front() = uint64(val*-1);
+	}
+	else
+	{
+		this->pos = true;
+		this->val.val.front() = uint64(val);
+	}
+}
+
+/*
 static inline InfInt InfInt::pow( const InfInt& val, const InfInt& exp );//
 static inline InfInt InfInt::sqrt( const InfInt& val );//
 static inline InfInt InfInt::log( const InfInt& base, const InfInt& val );//
@@ -290,13 +391,46 @@ static inline InfInt InfInt::log( const InfInt& base, const InfInt& val );//
 InfInt::InfInt( const char * str );//
 InfInt::InfInt( const void * data, const uint64 bytes );//
 InfInt::InfInt( const long long int val );//
-InfInt::InfInt( const int val );//
 InfInt::InfInt( const short val );//
 InfInt::InfInt( const char val );//
-InfInt::InfInt( const unsigned long long int val );//
 InfInt::InfInt( const unsigned int val );//
 InfInt::InfInt( const unsigned short val );//
 InfInt::InfInt( const unsigned char val );//
+*/
 
 #endif
+
+InfInt Mul( InfInt pow )
+{
+	InfInt a(10);
+	InfInt dst(0);
+	InfInt i(0);
+	for( ; i < pow; i = i + InfInt(1) )
+		dst = dst + a;
+	return dst;
+}
+
+int main()
+{
+	InfInt a(0), b(0), c(0), d(0);
+	
+	a = Mul( InfInt(1000) );
+	b = Mul( InfInt(100) );
+	printf( "\n Before subtracting " );
+	
+	c = (-a) - (-b);
+	
+	char str[1000000];
+	a.ToString( str, 1000000-100 );
+	printf( "\n a = \"%s\" ", str );
+	b.ToString( str, 1000000-100 );
+	printf( "\n b = \"%s\" ", str );
+	c.ToString( str, 1000000-100 );
+	printf( "\n c = \"%s\" ", str );
+	c = a - b;
+	c.ToString( str, 1000000-100 );
+	printf( "\n c = \"%s\" ", str );
+	
+	return 0;
+}
 
