@@ -8,6 +8,11 @@
 typedef unsigned long long int uint64;
 typedef long long int int64;
 
+namespace My
+{
+class InfInt;
+};
+
 class BoolTab
 {
 protected:
@@ -20,7 +25,7 @@ private:
 	
 public:
 	
-	friend class InfInt;
+	friend class My::InfInt;
 	
 	inline void Clear();
 	

@@ -5,6 +5,9 @@
 #include "InfInt.h"
 #include "BoolTab.cpp"
 
+namespace My
+{
+
 InfInt::InfInt( const BoolTab& sval, const bool spos )
 {
 	this->val = sval;
@@ -203,6 +206,8 @@ inline InfInt InfInt::operator - ( void ) const
 	return InfInt::Make( this->val, !this->pos );
 }
 
+//inline InfInt InfInt::Div( const InfInt& src, InfInt& result, InfInt& rest ) const;//
+
 inline InfInt InfInt::operator + ( const InfInt& src ) const//
 {
 	if( this->pos && !src.pos )
@@ -286,14 +291,8 @@ inline InfInt InfInt::operator - ( const InfInt& src ) const
 		
 		if( a.val > b.val )
 		{
-			/*
 			b.val = ~b.val;
 			b.val.val.resize( a.val.val.size(), uint64(0) - uint64(1) );
-			*/
-			
-			b.val.val.resize( a.val.val.size()+uint64(2), uint64(0) );
-			b.val = ~b.val;
-			
 			
 			InfInt dst;
 			dst = a + b + InfInt(1);
@@ -348,11 +347,13 @@ inline void InfInt::ToString( char * str, const unsigned long long int len ) con
 	// only hexadecimal now
 	uint64 i = 0;
 	
+	if( !this->pos )
+		str[0] = '-';
 	for( ; i < this->val.GetSize(); ++i )
 	{
-		sprintf( str+(i*16), "%16.16llX", this->val.val[(this->val.val.size()-1)-i] );
+		sprintf( str+(i*16)+(this->pos?uint64(0):uint64(1)), "%16.16llX", this->val.val[(this->val.val.size()-1)-i] );
 	}
-	str[i*16] = 0;
+	str[i*16+(this->pos?uint64(0):uint64(1))] = 0;
 }
 
 InfInt::InfInt()
@@ -398,39 +399,7 @@ InfInt::InfInt( const unsigned short val );//
 InfInt::InfInt( const unsigned char val );//
 */
 
+};
+
 #endif
-
-InfInt Mul( InfInt pow )
-{
-	InfInt a(10);
-	InfInt dst(0);
-	InfInt i(0);
-	for( ; i < pow; i = i + InfInt(1) )
-		dst = dst + a;
-	return dst;
-}
-
-int main()
-{
-	InfInt a(0), b(0), c(0), d(0);
-	
-	a = Mul( InfInt(1000) );
-	b = Mul( InfInt(100) );
-	printf( "\n Before subtracting " );
-	
-	c = (-a) - (-b);
-	
-	char str[1000000];
-	a.ToString( str, 1000000-100 );
-	printf( "\n a = \"%s\" ", str );
-	b.ToString( str, 1000000-100 );
-	printf( "\n b = \"%s\" ", str );
-	c.ToString( str, 1000000-100 );
-	printf( "\n c = \"%s\" ", str );
-	c = a - b;
-	c.ToString( str, 1000000-100 );
-	printf( "\n c = \"%s\" ", str );
-	
-	return 0;
-}
 

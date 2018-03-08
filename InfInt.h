@@ -5,6 +5,9 @@
 #include "BoolTab.h"
 #include <cstdio>
 
+namespace My
+{
+
 class InfInt
 {
 private:
@@ -23,6 +26,7 @@ public:
 	inline uint64 GetSize() const;
 	
 	inline InfInt& operator = ( const InfInt& src );
+	
 	
 	inline InfInt operator ~ (void) const;
 	inline InfInt operator & ( const InfInt& src ) const;
@@ -43,6 +47,8 @@ public:
 	inline bool operator >= ( const InfInt& src ) const;
 	inline bool operator == ( const InfInt& src ) const;
 	inline bool operator != ( const InfInt& src ) const;
+	
+	inline InfInt Div( const InfInt& src, InfInt& result, InfInt& rest ) const;
 	
 	inline InfInt operator - ( void ) const;
 	inline InfInt operator + ( const InfInt& src ) const;
@@ -82,6 +88,8 @@ public:
 	
 	InfInt( const BoolTab& sval, const bool spos );
 	static inline InfInt Make( const BoolTab& sval, const bool spos );
+};
+
 };
 
 #endif
