@@ -24,6 +24,7 @@ public:
 	inline bool IsNegative() const;
 	inline bool GetSign() const;
 	inline uint64 GetSize() const;
+	inline uint64 GetBytesNumber() const;
 	
 	inline InfInt& operator = ( const InfInt& src );
 	

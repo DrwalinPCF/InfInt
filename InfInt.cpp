@@ -45,6 +45,11 @@ inline uint64 InfInt::GetSize() const
 	return this->val.GetSize();
 }
 
+inline uint64 InfInt::GetBytesNumber() const
+{
+	return this->val.val.size() * sizeof(uint64);
+}
+
 inline InfInt& InfInt::operator = ( const InfInt& src )
 {
 	this->val = src.val;

@@ -90,6 +90,8 @@ int main()
 {
 	My::InfInt a[10];
 	InfInt b[10];
+	a[0] = My::InfInt(1);
+	b[0] = 1;
 	uint64 tempu, tempu2, j;
 	int i;
 	InfInt counter = 0, errorCounter = 0;
@@ -97,74 +99,24 @@ int main()
 	while( true )//for( uint64 efbsuvesfjsakfhesabfjkkfba = 0; efbsuvesfjsakfhesabfjkkfba < 100; ++efbsuvesfjsakfhesabfjkkfba )
 	{
 		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
-		a[0] = My::InfInt(tempu);
-		b[0] = tempu;
+		a[0] = a[0] + a[0] + My::InfInt(tempu);
+		b[0] = b[0] + b[0] + InfInt(tempu);
 		
-		tempu2 = uint64(rand());
-		for( j = 0; j < tempu2; ++j )
+		
+		if( ToString( a[0] ) != ToString( b[0] ) )
 		{
-			a[0] = a[0] + My::InfInt(tempu);
-			b[0] = b[0] + tempu;
+			std::cout << ToString( a[0] );
+			printf( " == " );
+			std::cout << ToString( b[0] );
+			printf( " " );
+			++errorCounter;
 		}
+		++counter;
 		
-		if( rand() % 2 == 0 )
+		if( counter % InfInt(10) == InfInt(0) )
 		{
-			a[0] = -a[0];
-			b[0] = -b[0];
-		}
-		
-		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
-		a[1] = My::InfInt(tempu);
-		b[1] = tempu;
-		
-		tempu2 = uint64(rand());
-		for( j = 0; j < tempu2; ++j )
-		{
-			a[1] = a[1] + My::InfInt(tempu);
-			b[1] = b[1] + tempu;
-		}
-		
-		if( rand() % 2 == 0 )
-		{
-			a[1] = -a[1];
-			b[1] = -b[1];
-		}
-		
-		a[2] = a[0] + a[1];
-		a[3] = a[0] - a[1];
-		a[4] = a[1] - a[0];
-		a[5] = a[1] + a[0];
-		
-		b[2] = b[0] + b[1];
-		b[3] = b[0] - b[1];
-		b[4] = b[1] - b[0];
-		b[5] = b[1] + b[0];
-		
-		for( i = 2; i < 6; ++i )
-		{
-			if( ToString( a[i] ) != ToString( b[i] ) )
-			{
-				printf( "\n a: " );
-				std::cout << ToString( a[0] );
-				printf( " : " );
-				std::cout << ToString( a[1] );
-				printf( " :: b: " );
-				std::cout << ToString( b[0] );
-				printf( " : " );
-				std::cout << ToString( b[1] );
-				printf( " =>(%i) ", i-2 );
-				
-				std::cout << ToString( a[i] );
-				printf( " == " );
-				std::cout << ToString( b[i] );
-				printf( " " );
-				++errorCounter;
-			}
-			++counter;
-			if( counter % InfInt(10000) == InfInt(0) )
-			{
-				std::cout << "\n Counter = " << counter << "   ErrorCounter = " << errorCounter;
-			}
+			std::cout << "\n Counter = " << counter << "   ErrorCounter = " << errorCounter << "   Log_10= " << log( InfInt(10), b[0] );
+			printf( "      My::InfInt::bytes() = %llu   InfInt::bytes() = %llu ", a[0].GetBytesNumber(), b[0].GetBytesOfVal() );
 		}
 	}
 	

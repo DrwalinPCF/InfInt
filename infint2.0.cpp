@@ -176,7 +176,9 @@ public:
     inline unsigned int toUnsignedInt() const; // throw
     inline unsigned long toUnsignedLong() const; // throw
     inline unsigned long long toUnsignedLongLong() const; // throw
-
+	
+	inline uint64 GetBytesOfVal() const;
+	
 //private:
     inline static ELEM_TYPE dInR(const InfInt& R, const InfInt& D);
     inline static void multiplyByDigit(ELEM_TYPE factor, std::vector<ELEM_TYPE>& val);
@@ -191,6 +193,11 @@ public:
     std::vector<ELEM_TYPE> val; // number with base FACTOR
     bool pos; // true if number is positive
 };
+
+inline uint64 InfInt::GetBytesOfVal() const
+{
+	return val.size() * sizeof(ELEM_TYPE);
+}
 
 const InfInt InfInt::zero = 0;
 const InfInt InfInt::one = 1;
@@ -1322,7 +1329,7 @@ inline InfInt pow( InfInt a, int b )
 inline InfInt log( InfInt n, InfInt a )	// log_n(a)
 {
     InfInt ans = 0;
-    while ( a > InfInt(1) )
+    while ( a > InfInt(1) || a < InfInt(-1) )
 	{
         ++ans;
         a /= n;
