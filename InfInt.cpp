@@ -121,22 +121,19 @@ inline InfInt& InfInt::operator ^= ( const InfInt& src )
 inline InfInt& InfInt::operator <<= ( const InfInt& src )
 {
 	if( src.pos )
-		(*this) <<= src.ToULL();
+		this->val <<= src.ToULL();
 	else
-		(*this) >>= src.ToULL();
+		this->val >>= src.ToULL();
 	this->val.ClearLeadingZeros();
 	return *this;
 }
 
 inline InfInt& InfInt::operator >>= ( const InfInt& src )
 {
-	if( src.val.val.size() )
-	{
-		if( src.pos )
-			(*this) >>= src.val.val[0];
-		else
-			(*this) <<= src.val.val[0];
-	}
+	if( src.pos )
+		this->val >>= src.ToULL();
+	else
+		this->val <<= src.ToULL();
 	this->val.ClearLeadingZeros();
 	if( this->val.GetSize() == 0 )		this->pos = true;
 	return *this;
@@ -209,6 +206,10 @@ inline InfInt InfInt::operator - ( void ) const
 
 inline InfInt InfInt::operator + ( const InfInt& src ) const
 {
+	if( this->val.val.size() == 0 )
+		return src;
+	if( src.val.val.size() == 0 )
+		return *this;
 	if( this->pos && !src.pos )
 	{
 		return (*this) - InfInt::Make( src.val, true );
@@ -220,7 +221,8 @@ inline InfInt InfInt::operator + ( const InfInt& src ) const
 	else // this->pos == src.pos
 	{
 		InfInt dst;
-		uint64 carryIn = 0, carryOut = 0, i = 0, max, min, temp;
+		uint64 carryIn = 0, carryOut = 0, i = 0, max, min;
+		register uint64 temp;
 		dst.pos = this->pos;
 		if( this->val.GetSize() < src.val.GetSize() )
 		{
@@ -238,18 +240,20 @@ inline InfInt InfInt::operator + ( const InfInt& src ) const
 		dst.val = this->val;
 		dst.val.val.resize( (max+2)>max ? max+2 : (uint64(0)-uint64(1)), uint64(0) );
 		
-		while( i < dst.val.GetSize() || carryOut )
+		while( i < src.val.val.size() && carryOut )
 		{
 			carryIn = carryOut;
 			carryOut ^= carryOut;
 			
 			temp = dst.val.val[i];
 			
-			if( i < src.val.GetSize() )
+			if( i < src.val.val.size() )
 			{
 				temp += src.val.val[i];
 				//check if this->val.val[i] overflow with src.val.val[i]
-				if( temp < src.val.val[i] || temp < dst.val.val[i] )
+				if( temp < src.val.val[i] )
+					++carryOut;
+				else if( temp < dst.val.val[i] )
 					++carryOut;
 			}
 			
@@ -272,87 +276,93 @@ inline InfInt InfInt::operator + ( const InfInt& src ) const
 
 inline InfInt InfInt::operator - ( const InfInt& src ) const
 {
-printf( "-::0" );
-	if( src.val.GetSize() == 0 )
+	if( src.val.val.size() == 0 )
 		return *this;
-printf( "-::1" );
+	if( this->val.val.size() == 0 )
+		return -src;
 	if( !this->pos && src.pos )
 	{
-printf( "-::2" );
 		return InfInt::Make( this->val, false ) + InfInt::Make( src.val, false );
 	}
 	else if( this->pos && !src.pos )
 	{
-printf( "-::3" );
 		return InfInt::Make( this->val, true ) + InfInt::Make( src.val, true );
 	}
 	// this->pos == src.pos
 	else if( !this->pos )
 	{
-printf( "-::4" );
 		return - ( InfInt::Make( this->val, true ) - InfInt::Make( src.val, true ) );
 	}	
 	else
 	{
-printf( "-::5" );
 		InfInt a = *this;
-printf( "-::6" );
 		InfInt b = src;
-printf( "-::7" );
 		
 		bool tempBool = a.val >= b.val;
-printf( "-::7.(6)" );
 		
 		if( tempBool )
 		{
-printf( "-::8" );
 			b.val = ~b.val;
-printf( "-::9" );
 			b.val.val.resize( a.val.val.size(), uint64(0) - uint64(1) );
-printf( "-::10" );
 			
 			InfInt dst;
-printf( "-::11" );
 			dst = a + b + InfInt(1);
-printf( "-::12" );
 			
 			if( dst.val.val.size() > 0 )
 			{
-printf( "-::13" );
 				dst.val.val.resize( dst.val.val.size() - 1 );
-printf( "-::14" );
 			}
-printf( "-::15" );
 			dst.val.ClearLeadingZeros();
-printf( "-::16" );
 			return dst;
 		}
 		else
 		{
-printf( "-::17" );
 			return - ( b - a );
 		}
-printf( "-::18" );
 	}
-printf( "-::19" );
 	return InfInt();
 }
 
 inline InfInt InfInt::operator * ( const InfInt& src ) const//
 {
+//printf( "*::1(s=%llu)", uint64(src.val.val.size()) );
+	if( src.val.val.size() == 0 || this->val.val.size() == 0 )
+		return InfInt(0);
+printf( "*::2" );
 	InfInt dst(0);
-	InfInt la = InfInt(src.val.GetSize()) * InfInt(sizeof(uint64)) * InfInt(8);
-	InfInt temp = InfInt::Make( this->val, true );
+printf( "*::3" );
+	InfInt base = InfInt::Make( this->val, true );
+printf( "*::4" );
+	InfInt temp = InfInt::Make( src.val, true );
+printf( "*::5" );
 	
-	for( ; la >= InfInt(0); la -= InfInt(1) )
+	while( true )
 	{
-		if( src.val.GetBit( la.ToULL() ) )
+printf( "*::6" );
+		if( uint32(temp.val.val.front()) & uint32(1) )
 		{
-			dst += ( temp << la );
+printf( "*::7" );
+//printf( "\n (%s) + (%s) = ", ToString(dst).c_str(), ToString(base).c_str() );
+			dst += base;
+//printf( "(%s) ", ToString(dst).c_str() );
+printf( "*::8" );
 		}
+printf( "*::9" );
+		temp >>= 1;
+printf( "*::10" );
+		if( temp.val.val.size() == 0 )
+			break;
+printf( "*::11" );
+		base <<= 1;
+printf( "*::12" );
 	}
 	
+printf( "*::13" );
 	dst.pos = !( this->pos ^ src.pos );
+printf( "*::14" );
+	
+//printf( "\n (%s) * (%s) = (%s) ", ToString(*this).c_str(), ToString(src).c_str(), ToString(dst).c_str() );
+	
 	return dst;
 }
 

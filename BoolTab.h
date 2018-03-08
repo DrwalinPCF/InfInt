@@ -7,6 +7,8 @@
 
 typedef unsigned long long int uint64;
 typedef long long int int64;
+typedef unsigned int uint32;
+typedef int int32;
 
 namespace My
 {

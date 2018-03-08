@@ -92,8 +92,8 @@ int main()
 {
 	My::InfInt a[10];
 	InfInt b[10];
-	a[0] = My::InfInt(10);
-	b[0] = 10;
+	a[0] = My::InfInt(2);
+	b[0] = 2;
 	uint64 tempu, tempu2, j;
 	int i;
 	InfInt counter = 0, errorCounter = 0;
@@ -102,9 +102,12 @@ int main()
 	{
 		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
 		
+//		printf( "\n a[0] = %s ", ToString( a[0] ).c_str() );
+//		printf( "\n a[0] * a[0] = %s ", ToString( a[0]*a[0] ).c_str() );
+		
 		
 		a[1] = a[0];
-		a[0] = ( a[0] * a[0] );// + My::InfInt(tempu);
+		a[0] = ( a[0] * a[0] ) + My::InfInt(tempu);
 		a[2] = a[1] - a[0];
 		a[3] = (-a[1]) - (-a[0]);
 		a[4] = a[2] + a[0];
@@ -112,14 +115,14 @@ int main()
 		
 		
 		b[1] = b[0];
-		b[0] = ( b[0] * b[0] );// + InfInt(tempu);
+		b[0] = ( b[0] * b[0] ) + InfInt(tempu);
 		b[2] = b[1] - b[0];
 		b[3] = (-b[1]) - (-b[0]);
 		b[4] = b[2] + b[0];
 		b[5] = (-b[1]) + (-b[0]);
 		
 		
-		/*
+		
 		for( i = 0; i < 10; ++i )
 		{
 			if( ToString( a[i] ) != ToString( b[i] ) )
@@ -132,7 +135,7 @@ int main()
 				++errorCounter;
 			}
 		}
-		*/
+		
 		
 		++counter;
 		
