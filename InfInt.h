@@ -8,6 +8,11 @@
 namespace My
 {
 
+/*
+	if val.GetSize() == 0 && pos == false
+	that means some kind of error
+*/
+
 class InfInt
 {
 private:
@@ -70,6 +75,7 @@ public:
 	inline unsigned long long int Size() const;
 	inline void ToString( char * str, const unsigned long long int len ) const;
 	
+	inline InfInt lb() const;	// return binary logarithm
 	static inline InfInt pow( const InfInt& val, const InfInt& exp );
 	static inline InfInt sqrt( const InfInt& val );
 	static inline InfInt log( const InfInt& base, const InfInt& val );
