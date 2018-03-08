@@ -204,52 +204,78 @@ inline InfInt InfInt::operator - ( void ) const
 	return InfInt::Make( this->val, !this->pos );
 }
 
+#define printf(x)
+
 inline InfInt InfInt::operator + ( const InfInt& src ) const
 {
 	if( this->val.val.size() == 0 )
+	{
+printf( "+::1" );
 		return src;
+	}
 	if( src.val.val.size() == 0 )
+	{
+printf( "+::2" );
 		return *this;
+	}
+printf( "+::3" );
 	if( this->pos && !src.pos )
 	{
+printf( "+::4" );
 		return (*this) - InfInt::Make( src.val, true );
 	}
 	else if( !this->pos && src.pos )
 	{
+printf( "+::5" );
 		return src - InfInt::Make( this->val, true );
 	}
 	else // this->pos == src.pos
 	{
+printf( "+::6" );
 		InfInt dst;
+printf( "+::7" );
 		uint64 carryIn = 0, carryOut = 0, i = 0, max, min;
 		register uint64 temp;
 		dst.pos = this->pos;
+printf( "+::8" );
 		if( this->val.GetSize() < src.val.GetSize() )
 		{
+printf( "+::9" );
 			min = this->val.GetSize();
 			max = src.val.GetSize();
+printf( "+::10" );
 		}
 		else
 		{
+printf( "+::11" );
 			max = this->val.GetSize();
 			min = src.val.GetSize();
+printf( "+::12" );
 		}
 		
 		// Positive adding:
 		
+printf( "+::13" );
 		dst.val = this->val;
+printf( "+::14" );
 		dst.val.val.resize( (max+2)>max ? max+2 : (uint64(0)-uint64(1)), uint64(0) );
+printf( "+::15" );
 		
-		while( i < src.val.val.size() && carryOut )
+		while( i < src.val.val.size() || carryOut )
 		{
+printf( "+::16" );
 			carryIn = carryOut;
 			carryOut ^= carryOut;
+printf( "+::17" );
 			
 			temp = dst.val.val[i];
+printf( "+::18" );
 			
 			if( i < src.val.val.size() )
 			{
+printf( "+::19" );
 				temp += src.val.val[i];
+printf( "+::20" );
 				//check if this->val.val[i] overflow with src.val.val[i]
 				if( temp < src.val.val[i] )
 					++carryOut;
@@ -257,18 +283,24 @@ inline InfInt InfInt::operator + ( const InfInt& src ) const
 					++carryOut;
 			}
 			
+printf( "+::21" );
 			dst.val.val[i] = temp;
+printf( "+::22" );
 			dst.val.val[i] += carryIn;
+printf( "+::23" );
 			//check if dst.val.val[i] overflow with carryIn
 			if( dst.val.val[i] < temp )
 				++carryOut;
+printf( "+::24" );
 			
 			++i;
 		}
+printf( "+::25" );
 		
 		dst.val.ClearLeadingZeros();
 		return dst;
 	}
+printf( "+::26" );
 	return InfInt();
 }
 
@@ -477,6 +509,8 @@ InfInt::InfInt( const unsigned int val )
 	this->pos = true;
 	this->val.val.resize( 1 );
 	this->val.val.front() = uint64(val);
+	this->val.ClearLeadingZeros();
+	if( this->val.GetSize() == 0 )		this->pos = true;
 }
 
 InfInt::InfInt( const unsigned long long int val )
@@ -484,6 +518,8 @@ InfInt::InfInt( const unsigned long long int val )
 	this->pos = true;
 	this->val.val.resize( 1 );
 	this->val.val.front() = val;
+	this->val.ClearLeadingZeros();
+	if( this->val.GetSize() == 0 )		this->pos = true;
 }
 
 InfInt::InfInt( const int val )
@@ -499,6 +535,8 @@ InfInt::InfInt( const int val )
 		this->pos = true;
 		this->val.val.front() = uint64(val);
 	}
+	this->val.ClearLeadingZeros();
+	if( this->val.GetSize() == 0 )		this->pos = true;
 }
 
 };
