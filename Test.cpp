@@ -86,6 +86,8 @@ std::string ToString( const My::InfInt& val )
 	
 }
 
+#include <conio.h>
+
 int main()
 {
 	My::InfInt a[10];
@@ -99,18 +101,35 @@ int main()
 	while( true )//for( uint64 efbsuvesfjsakfhesabfjkkfba = 0; efbsuvesfjsakfhesabfjkkfba < 100; ++efbsuvesfjsakfhesabfjkkfba )
 	{
 		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
+		a[1] = a[0];
 		a[0] = a[0] + a[0] + My::InfInt(tempu);
+		a[2] = a[1] - a[0];
+		a[3] = (-a[1]) - (-a[0]);
+		a[4] = a[2] + a[0];
+		a[5] = (-a[1]) + (-a[0]);
+		
+		b[1] = b[0];
 		b[0] = b[0] + b[0] + InfInt(tempu);
+		b[2] = b[1] - b[0];
+		b[3] = (-b[1]) - (-b[0]);
+		b[4] = b[2] + b[0];
+		b[5] = (-b[1]) + (-b[0]);
 		
 		
-		if( ToString( a[0] ) != ToString( b[0] ) )
+		for( i = 0; i < 10; ++i )
 		{
-			std::cout << ToString( a[0] );
-			printf( " == " );
-			std::cout << ToString( b[0] );
-			printf( " " );
-			++errorCounter;
+			if( ToString( a[i] ) != ToString( b[i] ) )
+			{
+				printf( "\n " );
+				std::cout << ToString( a[i] );
+				printf( " == " );
+				std::cout << ToString( b[i] );
+				printf( "  : ( %i )", i );
+				++errorCounter;
+				getch();
+			}
 		}
+		
 		++counter;
 		
 		if( counter % InfInt(10) == InfInt(0) )
