@@ -496,6 +496,12 @@ BoolTab::BoolTab()
 {
 }
 
+BoolTab::BoolTab( const uint64 src )
+{
+	this->val.resize( 1 );
+	this->val.front() = src;
+}
+
 #endif
 
 // Scan & Print:

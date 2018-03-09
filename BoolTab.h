@@ -70,6 +70,7 @@ public:
 	inline void FromData( const void * data, const uint64 bytes );
 	
 	BoolTab();
+	BoolTab( const uint64 src );
 };
 
 #endif

@@ -219,64 +219,29 @@ inline InfInt InfInt::operator + ( const InfInt& src ) const
 	
 	if( this->pos && !src.pos )
 	{
-		return (*this) - InfInt::Make( src.val, true );
+		if( this->val > src.val )
+		{
+			return InfInt::Make( this->val - src.val, true );
+		}
+		else
+		{
+			return InfInt::Make( src.val - this->val, false );
+		}
 	}
 	else if( !this->pos && src.pos )
 	{
-		return src - InfInt::Make( this->val, true );
+		if( this->val > src.val )
+		{
+			return InfInt::Make( this->val - src.val, false );
+		}
+		else
+		{
+			return InfInt::Make( src.val - this->val, true );
+		}
 	}
 	else // this->pos == src.pos
 	{
 		InfInt dst( this->val + src.val, this->pos );
-		//InfInt dst( this->val + src.val, this->pos );
-		
-		/*
-		uint64 carryIn = 0, carryOut = 0, i = 0, max, min;
-		register uint64 temp;
-		dst.pos = this->pos;
-		if( this->val.GetSize() < src.val.GetSize() )
-		{
-			min = this->val.GetSize();
-			max = src.val.GetSize();
-		}
-		else
-		{
-			max = this->val.GetSize();
-			min = src.val.GetSize();
-		}
-		
-		// Positive adding:
-		
-		dst.val = this->val;
-		dst.val.val.resize( (max+2)>max ? max+2 : (uint64(0)-uint64(1)), uint64(0) );
-		
-		while( i < src.val.val.size() || carryOut )
-		{
-			carryIn = carryOut;
-			carryOut ^= carryOut;
-			
-			temp = dst.val.val[i];
-			
-			if( i < src.val.val.size() )
-			{
-				temp += src.val.val[i];
-				//check if this->val.val[i] overflow with src.val.val[i]
-				if( temp < src.val.val[i] )
-					++carryOut;
-				else if( temp < dst.val.val[i] )
-					++carryOut;
-			}
-			
-			dst.val.val[i] = temp;
-			dst.val.val[i] += carryIn;
-			//check if dst.val.val[i] overflow with carryIn
-			if( dst.val.val[i] < temp )
-				++carryOut;
-			
-			++i;
-		}
-		*/
-		
 		dst.val.ClearLeadingZeros();
 		return dst;
 	}
@@ -300,38 +265,15 @@ inline InfInt InfInt::operator - ( const InfInt& src ) const
 		return InfInt::Make( this->val, true ) + InfInt::Make( src.val, true );
 	}
 	// this->pos == src.pos
-	else if( !this->pos )
-	{
-		return - ( InfInt::Make( this->val, true ) - InfInt::Make( src.val, true ) );
-	}	
 	else
 	{
-		InfInt a = *this;
-		InfInt b = src;
-		
-		bool tempBool = a.val >= b.val;
-		
-		if( tempBool )
+		if( this->val > src.val )
 		{
-			/*
-			b.val = ~b.val;
-			b.val.val.resize( a.val.val.size(), uint64(0) - uint64(1) );
-			
-			InfInt dst;
-			dst = a + b + InfInt(1);
-			
-			if( dst.val.val.size() > 0 )
-			{
-				dst.val.val.resize( dst.val.val.size() - 1 );
-			}
-			dst.val.ClearLeadingZeros();
-			return dst;
-			*/
 			return InfInt::Make( this->val - src.val, this->pos );
 		}
 		else
 		{
-			return - ( b - a );
+			return InfInt::Make( src.val - this->val, !this->pos );
 		}
 	}
 	return InfInt();
@@ -344,18 +286,17 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 	InfInt dst(0);
 	uint64 a1, a2, b1, b2;
 	uint64 i, j;
-	InfInt infi(0), infj;
 	
-	for( i = 0; i < this->val.val.size(); ++i, infi += InfInt(64) )
+	for( i = 0; i < this->val.val.size(); ++i )
 	{
 		a1 = this->val.val[i] & uint64( uint32(0)-uint32(1) );
 		a2 = ( this->val.val[i] - a1 ) >> uint64(32);		// & uint64( uint64( uint32(0)-uint32(1) ) << uint64(32) );
-		for( j = 0, infj = InfInt(0); j < src.val.val.size(); ++j, infj += InfInt(64) )
+		for( j = 0; j < src.val.val.size(); ++j )
 		{
 			b1 = src.val.val[j] & uint64( uint32(0)-uint32(1) );
 			b2 = ( src.val.val[j] - b1 ) >> uint64(32);		// & uint64( uint64( uint32(0)-uint32(1) ) << uint64(32) );
 			
-			dst = dst + ( ( (InfInt(a1*b1)) + (InfInt(a2*b1)<<InfInt(32)) + (InfInt(a1*b2)<<InfInt(32)) + (InfInt(a2*b2)<<InfInt(64)) ) << ( infi + infj ) );
+			dst.val = dst.val + ( ( (BoolTab(a1*b1)) + (BoolTab(a2*b1)<<uint64(32)) + (BoolTab(a1*b2)<<uint64(32)) + (BoolTab(a2*b2)<<uint64(64)) ) << ( (i+j)<<6 ) );	//  (i+j)<<6  <=>  (i+j)*64
 		}
 	}
 	
