@@ -313,6 +313,7 @@ inline InfInt InfInt::operator - ( const InfInt& src ) const
 		
 		if( tempBool )
 		{
+			/*
 			b.val = ~b.val;
 			b.val.val.resize( a.val.val.size(), uint64(0) - uint64(1) );
 			
@@ -325,6 +326,8 @@ inline InfInt InfInt::operator - ( const InfInt& src ) const
 			}
 			dst.val.ClearLeadingZeros();
 			return dst;
+			*/
+			return InfInt::Make( this->val - src.val, this->pos );
 		}
 		else
 		{

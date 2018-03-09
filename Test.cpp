@@ -108,7 +108,7 @@ int main()
 		
 		a[1] = a[0];
 		a[6] = a[0] * My::InfInt(3);
-		a[0] = a[6] * My::InfInt(tempu);
+		a[0] = ( a[6] * My::InfInt(tempu) ) + My::InfInt(tempu);
 		a[2] = a[1] - a[0];
 		a[3] = (-a[1]) - (-a[0]);
 		a[4] = a[2] + a[0];
@@ -117,7 +117,7 @@ int main()
 		
 		b[1] = b[0];
 		b[6] = b[0] * InfInt(3);
-		b[0] = b[6] * InfInt(tempu);
+		b[0] = ( b[6] * InfInt(tempu) ) + InfInt(tempu);
 		b[2] = b[1] - b[0];
 		b[3] = (-b[1]) - (-b[0]);
 		b[4] = b[2] + b[0];

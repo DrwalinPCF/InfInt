@@ -364,7 +364,7 @@ inline BoolTab BoolTab::operator + ( const BoolTab& src ) const
 		min = src.val.size();
 	}
 	
-	dst.val.resize( (max+uint64(1))>max ? max+1 : (uint64(0)-uint64(1)), uint64(0) );
+	dst.val.resize( (max+uint64(1))>max ? max+uint64(1) : max, uint64(0) );
 	
 	for( ; i < min; ++i )
 	{
@@ -400,24 +400,79 @@ inline BoolTab BoolTab::operator + ( const BoolTab& src ) const
 		}
 	}
 	
+	if( i < dst.val.size() )
+		dst.val[i] = carryFlag;
 	
-	/////// NEED CORRECTION
-	for( ; i < dst.val.size(); ++i )
-	{
-		uint64 temp = dst.val[i];
-		dst.val[i] += carryFlag;
-		if( dst.val[i] < temp )
-			carryFlag = 1;
-		else
-			break;
-	}
-	
-	//dst.ClearLeadingZeros();
 	return dst;
 }
 
+inline BoolTab BoolTab::operator - ( const BoolTab& src ) const
+{
+	BoolTab dst;
+	uint64 carryFlag = 1, i = 0, max, min;
+	if( this->val.size() < src.val.size() )
+	{
+		min = this->val.size();
+		max = src.val.size();
+	}
+	else
+	{
+		max = this->val.size();
+		min = src.val.size();
+	}
+	
+	dst.val.resize( (max+uint64(2))>max ? max+uint64(2) : max, uint64(0) );
+	
+	
+	for( ; i < min; ++i )
+	{
+		dst.val[i] = this->val[i] + (~src.val[i]) + carryFlag;
+		if( dst.val[i] < this->val[i] || dst.val[i] < (~src.val[i]) )
+			carryFlag = 1;
+		else
+			carryFlag ^= carryFlag;
+	}
+	
+	if( this->val.size() < src.val.size() )
+	{
+		for( ; i < max; ++i )
+		{
+			dst.val[i] = (~src.val[i]) + carryFlag;
+			if( dst.val[i] < src.val[i] )
+				carryFlag = 1;
+			else
+			{
+				printf( "\n BoolTab::operator-()::ErrorCode = 1. Please report this to Drwalin." );
+				printf( "\n These error means that: a-b was called when b>a\n" );
+				for( ++i; i < max; ++i )
+					dst.val[i] = ~src.val[i];
+			}
+		}
+	}
+	else
+	{
+		for( ; i < max; ++i )
+		{
+			dst.val[i] = this->val[i] + (uint64(0)-uint64(1)) + carryFlag;
+			if( dst.val[i] < (uint64(0)-uint64(1)) )
+				carryFlag = 1;
+			else
+				carryFlag ^= 0;
+		}
+	}
+	
+	if( i < dst.val.size() )
+		dst.val[i] = carryFlag;
+	
+	dst.ClearLeadingZeros();
+	if( dst.val.size() )
+		dst.val.resize( dst.val.size() - 1 );
+	
+	return dst;
+}
+
+
 /*
-inline BoolTab BoolTab::operator - ( const BoolTab& src ) const;
 inline BoolTab& BoolTab::operator += ( const BoolTab& src );
 inline BoolTab& BoolTab::operator -= ( const BoolTab& src );
 inline BoolTab& BoolTab::Increment();
