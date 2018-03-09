@@ -59,6 +59,13 @@ public:
 	inline bool operator == ( const BoolTab& src ) const;
 	inline bool operator != ( const BoolTab& src ) const;
 	
+	inline BoolTab operator + ( const BoolTab& src ) const;
+	inline BoolTab operator - ( const BoolTab& src ) const;		// if src > *this then undefined behavior
+	inline BoolTab& operator += ( const BoolTab& src );
+	inline BoolTab& operator -= ( const BoolTab& src );			// if src > *this then undefined behavior
+	inline BoolTab& Increment();
+	inline BoolTab& Decrement();								// if *this == 0 then return 0
+	
 	inline void * GetValue();
 	inline void FromData( const void * data, const uint64 bytes );
 	

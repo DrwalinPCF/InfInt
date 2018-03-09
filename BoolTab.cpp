@@ -349,6 +349,80 @@ inline bool BoolTab::operator != ( const BoolTab& src ) const
 }
 
 
+inline BoolTab BoolTab::operator + ( const BoolTab& src ) const
+{
+	BoolTab dst;
+	uint64 carryFlag = 0, i = 0, max, min;
+	if( this->val.size() < src.val.size() )
+	{
+		min = this->val.size();
+		max = src.val.size();
+	}
+	else
+	{
+		max = this->val.size();
+		min = src.val.size();
+	}
+	
+	dst.val.resize( (max+uint64(1))>max ? max+1 : (uint64(0)-uint64(1)), uint64(0) );
+	
+	for( ; i < min; ++i )
+	{
+		dst.val[i] = this->val[i] + src.val[i] + carryFlag;
+		if( dst.val[i] < this->val[i] || dst.val[i] < src.val[i] )
+			carryFlag = 1;
+		else
+			carryFlag ^= carryFlag;
+	}
+	
+	if( this->val.size() < src.val.size() )
+	{
+		for( ; i < max; ++i )
+		{
+			dst.val[i] = src.val[i] + carryFlag;
+			if( dst.val[i] < src.val[i] )
+				carryFlag = 1;
+			else
+				for( ++i; i < max; ++i )
+					dst.val[i] = src.val[i];
+		}
+	}
+	else
+	{
+		for( ; i < max; ++i )
+		{
+			dst.val[i] = this->val[i] + carryFlag;
+			if( dst.val[i] < this->val[i] )
+				carryFlag = 1;
+			else
+				for( ++i; i < max; ++i )
+					dst.val[i] = this->val[i];
+		}
+	}
+	
+	
+	/////// NEED CORRECTION
+	for( ; i < dst.val.size(); ++i )
+	{
+		uint64 temp = dst.val[i];
+		dst.val[i] += carryFlag;
+		if( dst.val[i] < temp )
+			carryFlag = 1;
+		else
+			break;
+	}
+	
+	//dst.ClearLeadingZeros();
+	return dst;
+}
+
+/*
+inline BoolTab BoolTab::operator - ( const BoolTab& src ) const;
+inline BoolTab& BoolTab::operator += ( const BoolTab& src );
+inline BoolTab& BoolTab::operator -= ( const BoolTab& src );
+inline BoolTab& BoolTab::Increment();
+inline BoolTab& BoolTab::Decrement();
+*/
 
 inline void * BoolTab::GetValue()
 {
