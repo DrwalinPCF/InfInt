@@ -357,43 +357,27 @@ inline InfInt InfInt::operator - ( const InfInt& src ) const
 
 inline InfInt InfInt::operator * ( const InfInt& src ) const//
 {
-//printf( "*::1(s=%llu)", uint64(src.val.val.size()) );
 	if( src.val.val.size() == 0 || this->val.val.size() == 0 )
 		return InfInt(0);
-printf( "*::2" );
 	InfInt dst(0);
-printf( "*::3" );
-	InfInt base = InfInt::Make( this->val, true );
-printf( "*::4" );
-	InfInt temp = InfInt::Make( src.val, true );
-printf( "*::5" );
+	uint64 a1, a2, b1, b2;
+	uint64 i, j;
+	InfInt infi(0), infj;
 	
-	while( true )
+	for( i = 0; i < this->val.val.size(); ++i, infi += InfInt(64) )
 	{
-printf( "*::6" );
-		if( uint32(temp.val.val.front()) & uint32(1) )
+		a1 = this->val.val[i] & uint64( uint32(0)-uint32(1) );
+		a2 = ( this->val.val[i] - a1 ) >> uint64(32);		// & uint64( uint64( uint32(0)-uint32(1) ) << uint64(32) );
+		for( j = 0, infj = InfInt(0); j < src.val.val.size(); ++j, infj += InfInt(64) )
 		{
-printf( "*::7" );
-//printf( "\n (%s) + (%s) = ", ToString(dst).c_str(), ToString(base).c_str() );
-			dst += base;
-//printf( "(%s) ", ToString(dst).c_str() );
-printf( "*::8" );
+			b1 = src.val.val[j] & uint64( uint32(0)-uint32(1) );
+			b2 = ( src.val.val[j] - b1 ) >> uint64(32);		// & uint64( uint64( uint32(0)-uint32(1) ) << uint64(32) );
+			
+			dst = dst + ( ( (InfInt(a1*b1)) + (InfInt(a2*b1)<<InfInt(32)) + (InfInt(a1*b2)<<InfInt(32)) + (InfInt(a2*b2)<<InfInt(64)) ) << ( infi + infj ) );
 		}
-printf( "*::9" );
-		temp >>= 1;
-printf( "*::10" );
-		if( temp.val.val.size() == 0 )
-			break;
-printf( "*::11" );
-		base <<= 1;
-printf( "*::12" );
 	}
 	
-printf( "*::13" );
 	dst.pos = !( this->pos ^ src.pos );
-printf( "*::14" );
-	
-//printf( "\n (%s) * (%s) = (%s) ", ToString(*this).c_str(), ToString(src).c_str(), ToString(dst).c_str() );
 	
 	return dst;
 }
