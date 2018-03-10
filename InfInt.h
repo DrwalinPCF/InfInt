@@ -17,14 +17,11 @@ namespace My
 class InfInt
 {
 private:
+public:
 	
 	BoolTab val;
 	bool pos;
 	
-	
-	//const static InfInt zero( BoolTab(), 1 );
-	
-public:
 	
 	inline bool IsPositive() const;
 	inline bool IsNegative() const;
@@ -69,6 +66,8 @@ public:
 	inline InfInt& operator *= ( const InfInt& src );
 	inline InfInt& operator /= ( const InfInt& src );
 	inline InfInt& operator %= ( const InfInt& src );
+	inline InfInt& Increment();
+	inline InfInt& Decrement();
 	
 	inline unsigned long long int ToULL() const;
 	inline long long int ToLL() const;

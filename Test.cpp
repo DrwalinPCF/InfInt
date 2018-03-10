@@ -101,11 +101,13 @@ int main()
 	while( true )//for( uint64 efbsuvesfjsakfhesabfjkkfba = 0; efbsuvesfjsakfhesabfjkkfba < 100; ++efbsuvesfjsakfhesabfjkkfba )
 	{
 		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
-		//tempu = 0;
-//		printf( "\n a[0] = %s ", ToString( a[0] ).c_str() );
-//		printf( "\n a[0] * a[0] = %s ", ToString( a[0]*a[0] ).c_str() );
+		
+		a[0].val.Increment();
+		++(b[0]);
 		
 		
+		
+		/*
 		a[1] = a[0];
 		a[6] = a[0] * My::InfInt(3);
 		a[0] = ( a[6] * My::InfInt(tempu) ) + My::InfInt(tempu);
@@ -147,7 +149,7 @@ int main()
 		b[16] =   (b[0]) + (-b[1]);
 		b[17] =   (b[0]) - (-b[1]);
 		b[18] =  (-b[0]) -  (b[1]);
-		
+		*/
 		
 		
 		for( i = 0; i < 11; ++i )
@@ -166,11 +168,12 @@ int main()
 		
 		++counter;
 		
-//		if( counter % InfInt(10) == InfInt(0) )
+		if( counter % InfInt(10000) == InfInt(0) )
 		{
 			std::cout << "\n Counter = " << counter << "   ErrorCounter = " << errorCounter << "   Log_10= " << "0";//log( InfInt(10), b[0] );
-			printf( "      My::InfInt::bytes() = %llu   InfInt::bytes() = %llu ", a[0].GetBytesNumber(), b[0].GetBytesOfVal() );
+			printf( "      My::InfInt = %s   InfInt = %s ", ToString(a[0]).c_str(), ToString(b[0]).c_str() );
 		}
+		
 	}
 	
 	

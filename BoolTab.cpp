@@ -53,7 +53,7 @@ inline void BoolTab::SetBit( const uint64 pos, const bool value )
 			else
 			{
 				this->val[pos/BoolTab::bits] -= uint64(1) << uint64(pos%BoolTab::bits);
-				//ClearLeadingZeros();
+				ClearLeadingZeros();
 			}
 		}
 	}
@@ -110,6 +110,7 @@ inline BoolTab BoolTab::operator ^ ( const BoolTab& src ) const
 	for( ; i < this->val.size(); ++i )
 		dst.val[i] = this->val[i] ^ src.val[i];
 	
+	dst.ClearLeadingZeros();
 	return dst;
 }
 
@@ -130,7 +131,7 @@ inline BoolTab BoolTab::operator << ( const uint64 src ) const
 		for( uint64 i = 0; i < this->val.size(); ++i )
 			dst.val[i+full+1] |= this->val[i] >> (bits-rest);
 	
-	//dst.ClearLeadingZeros();
+	dst.ClearLeadingZeros();
 	return dst;
 }
 
@@ -157,7 +158,7 @@ inline BoolTab BoolTab::operator >> ( const uint64 src ) const
 		for( uint64 i = full+1; i < this->val.size(); ++i )
 			dst.val[i-full-1] |= this->val[i] << (bits-rest);
 	
-	//dst.ClearLeadingZeros();
+	dst.ClearLeadingZeros();
 	return dst;
 }
 
@@ -172,22 +173,13 @@ inline BoolTab& BoolTab::operator <<= ( const uint64 src )
 	
 	memset( &(this->val.front()), 0, this->val.size()*sizeof(uint64) );
 	
-	/*
-	for( uint64 i = 0; i < temp.size(); ++i )
-	{
-		this->val[i+full] |= temp[i] << rest;
-		if(rest)
-			this->val[i+full+1] |= temp[i] >> (bits-rest);
-	}
-	*/
-	
 	for( uint64 i = 0; i < temp.size(); ++i )
 		this->val[i+full] |= temp[i] << rest;
 	if(rest)
 		for( uint64 i = 0; i < temp.size(); ++i )
 			this->val[i+full+1] |= temp[i] >> (bits-rest);
 	
-	//ClearLeadingZeros();
+	ClearLeadingZeros();
 	return *this;
 }
 
@@ -208,21 +200,13 @@ inline BoolTab& BoolTab::operator >>= ( const uint64 src )
 	
 	memset( &(this->val.front()), 0, this->val.size()*sizeof(uint64) );
 	
-	/*
-	for( uint64 i = full; i < temp.size(); ++i )
-	{
-		this->val[i-full] |= temp[i] >> rest;
-		this->val[i-full-1] |= temp[i] << (bits-rest);
-	}
-	*/
-	
 	for( uint64 i = full; i < temp.size(); ++i )
 		this->val[i-full] |= temp[i] >> rest;
 	if( rest )
 		for( uint64 i = full+1; i < temp.size(); ++i )
 			this->val[i-full-1] |= temp[i] << (bits-rest);
 	
-	//ClearLeadingZeros();
+	ClearLeadingZeros();
 	return *this;
 }
 
@@ -235,6 +219,7 @@ inline BoolTab& BoolTab::operator &= ( const BoolTab& src )
 	for( ; i < this->val.size(); ++i )
 		this->val[i] &= src.val[i];
 	
+	this->ClearLeadingZeros();
 	return *this;
 }
 
@@ -259,6 +244,7 @@ inline BoolTab& BoolTab::operator ^= ( const BoolTab& src )
 	for( ; i < this->val.size(); ++i )
 		this->val[i] ^= src.val[i];
 	
+	this->ClearLeadingZeros();
 	return *this;
 }
 
@@ -403,6 +389,8 @@ inline BoolTab BoolTab::operator + ( const BoolTab& src ) const
 	if( i < dst.val.size() )
 		dst.val[i] = carryFlag;
 	
+	dst.ClearLeadingZeros();
+	
 	return dst;
 }
 
@@ -468,15 +456,50 @@ inline BoolTab BoolTab::operator - ( const BoolTab& src ) const
 	if( dst.val.size() )
 		dst.val.resize( dst.val.size() - 1 );
 	
+	dst.ClearLeadingZeros();
 	return dst;
+}
+
+inline BoolTab& BoolTab::Increment()
+{
+	if( this->val.size() )
+	{
+		uint64 i = 0;
+		while( true )
+		{
+			if( !(~(this->val[i])) )
+			{
+				this->val[i] = uint64(0);
+			}
+			else
+			{
+				++(this->val[i]);
+				this->ClearLeadingZeros();
+				break;
+			}
+			
+			++i;
+			if( i == this->val.size() )
+			{
+				this->val.resize( this->val.size() + 1 );
+				this->val.back() = uint64(1);
+				break;
+			}
+		}
+	}
+	else
+	{
+		this->val.resize( 1 );
+		this->val.front() = uint64(1);
+	}
+	return *this;
 }
 
 
 /*
+inline BoolTab& BoolTab::Decrement();
 inline BoolTab& BoolTab::operator += ( const BoolTab& src );
 inline BoolTab& BoolTab::operator -= ( const BoolTab& src );
-inline BoolTab& BoolTab::Increment();
-inline BoolTab& BoolTab::Decrement();
 */
 
 inline void * BoolTab::GetValue()
@@ -489,7 +512,7 @@ inline void BoolTab::FromData( const void * data, const uint64 bytes )
 	this->val.resize( bytes/sizeof(uint64) + uint64(bytes%sizeof(uint64) ? 1 : 0 ) );
 	memset( &(this->val.front()), 0, this->val.size()*sizeof(uint64) );
 	memcpy( &(this->val.front()), data, bytes );
-	//ClearLeadingZeros();
+	ClearLeadingZeros();
 }
 
 BoolTab::BoolTab()
@@ -498,8 +521,15 @@ BoolTab::BoolTab()
 
 BoolTab::BoolTab( const uint64 src )
 {
-	this->val.resize( 1 );
-	this->val.front() = src;
+	if( src )
+	{
+		this->val.resize( 1 );
+		this->val.front() = src;
+	}
+	else
+	{
+		this->val.clear();
+	}
 }
 
 #endif
