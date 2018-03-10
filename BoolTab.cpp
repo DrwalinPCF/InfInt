@@ -495,9 +495,47 @@ inline BoolTab& BoolTab::Increment()
 	return *this;
 }
 
+inline BoolTab& BoolTab::Decrement()
+{
+	if( this->val.size() )
+	{
+		uint64 carryFlag = this->val.front() ? 1 : 0, i = 1;
+		if( this->val.front() )
+			carryFlag = 1;
+		this->val.front() += (~uint64(0));
+		
+		for( ; i < this->val.size(); ++i )
+		{
+			if( carryFlag || this->val[i] )
+			{
+				this->val[i] += (~uint64(0)) + carryFlag;
+				carryFlag = 1;
+			}
+			else
+			{
+				this->val[i] += (~uint64(0)) + carryFlag;
+				carryFlag ^= carryFlag;
+			}
+				
+			/*
+			if( this->val[i] & (uint64(1)<<uint64(63)) )
+			{
+				this->val[i] += (~uint64(0)) + carryFlag;
+				carryFlag = 1;
+			}
+			else
+			{
+				this->val[i] += (~uint64(0)) + carryFlag;
+				carryFlag = 0;
+			}
+			*/
+		}
+		this->ClearLeadingZeros();
+	}
+	return *this;
+}
 
 /*
-inline BoolTab& BoolTab::Decrement();
 inline BoolTab& BoolTab::operator += ( const BoolTab& src );
 inline BoolTab& BoolTab::operator -= ( const BoolTab& src );
 */

@@ -92,9 +92,21 @@ int main()
 {
 	My::InfInt a[100];
 	InfInt b[100];
-	a[0] = My::InfInt(3);
-	b[0] = 3;
 	uint64 tempu = 0, tempu2, j;
+	tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
+	
+	/*
+	a[0] = My::InfInt(tempu);
+	a[0] *= My::InfInt(3);
+	b[0] = InfInt(tempu);
+	b[0] *= InfInt(3);
+	*/
+	
+	a[0] = My::InfInt(~(uint64(0)));
+	a[0] += My::InfInt(30000);
+	b[0] = InfInt(~(uint64(0)));
+	b[0] += InfInt(30000);
+	
 	int i;
 	InfInt counter = 0, errorCounter = 0;
 	
@@ -102,8 +114,8 @@ int main()
 	{
 		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
 		
-		a[0].val.Increment();
-		++(b[0]);
+		a[0].val.Decrement();
+		--(b[0]);
 		
 		
 		
@@ -168,7 +180,7 @@ int main()
 		
 		++counter;
 		
-		if( counter % InfInt(10000) == InfInt(0) )
+		if( counter % InfInt(1000) == InfInt(0) )
 		{
 			std::cout << "\n Counter = " << counter << "   ErrorCounter = " << errorCounter << "   Log_10= " << "0";//log( InfInt(10), b[0] );
 			printf( "      My::InfInt = %s   InfInt = %s ", ToString(a[0]).c_str(), ToString(b[0]).c_str() );
