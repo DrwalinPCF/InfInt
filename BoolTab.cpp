@@ -516,29 +516,23 @@ inline BoolTab& BoolTab::Decrement()
 				this->val[i] += (~uint64(0)) + carryFlag;
 				carryFlag ^= carryFlag;
 			}
-				
-			/*
-			if( this->val[i] & (uint64(1)<<uint64(63)) )
-			{
-				this->val[i] += (~uint64(0)) + carryFlag;
-				carryFlag = 1;
-			}
-			else
-			{
-				this->val[i] += (~uint64(0)) + carryFlag;
-				carryFlag = 0;
-			}
-			*/
 		}
 		this->ClearLeadingZeros();
 	}
 	return *this;
 }
 
-/*
-inline BoolTab& BoolTab::operator += ( const BoolTab& src );
-inline BoolTab& BoolTab::operator -= ( const BoolTab& src );
-*/
+inline BoolTab& BoolTab::operator += ( const BoolTab& src )		// need optimization
+{
+	*this = *this + src;
+	return *this;
+}
+
+inline BoolTab& BoolTab::operator -= ( const BoolTab& src )		// need optimization
+{
+	*this = *this - src;
+	return *this;
+}
 
 inline void * BoolTab::GetValue()
 {

@@ -301,32 +301,94 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 	}
 	
 	dst.pos = !( this->pos ^ src.pos );
-	
 	return dst;
+}
+
+inline bool InfInt::Div( const InfInt& src, InfInt& result, InfInt& rest ) const
+{
+	if( src.val.val.size() )
+	{
+		uint64 loga = this->lb().ToULL();
+		uint64 logb = src.lb().ToULL();
+		
+		if( loga < logb )
+		{
+			result = InfInt(0);
+			rest = *this;
+			result.pos = !( this->pos ^ src.pos );
+			rest.pos = !( this->pos ^ src.pos );
+			return true;
+		}
+		else if( loga == logb )
+		{
+			if( this->val > src.val )
+			{
+				result = InfInt(1);
+				rest.val = this->val - src.val;
+				
+				result.pos = !( this->pos ^ src.pos );
+				rest.pos = !( this->pos ^ src.pos );
+				return true;
+				printf( "\n I hope it work. Code: InfInt::Div::Test = 1\n" );
+			}
+			else
+			{
+				result = InfInt(0);
+				rest = *this;
+				result.pos = !( this->pos ^ src.pos );
+				rest.pos = !( this->pos ^ src.pos );
+				return true;
+			}
+		}
+		
+		rest = *this;
+		result = InfInt(0);
+		uint64 move = ( loga - logb ) + uint64(3);		// +3 - to be sure, and for tests what added number is the best
+		
+		BoolTab tempSrc = src.val << move;
+		
+		while( true )
+		{
+			if( rest.val >= tempSrc )
+			{
+				rest.val -= tempSrc;
+				result.val += ( BoolTab(1) << move );
+			}
+			
+			if( move == 0 )
+				break;
+			--move;
+			tempSrc >>= uint64(1);
+		}
+		
+		result.pos = !( this->pos ^ src.pos );
+		rest.pos = !( this->pos ^ src.pos );
+		return true;
+	}
+	return false;
 }
 
 #undef printf
 
-inline InfInt& InfInt::operator += ( const InfInt& src )
+inline InfInt& InfInt::operator += ( const InfInt& src )		// need optimization
 {
 	(*this) = (*this) + src;
 	return *this;
 }
 
-inline InfInt& InfInt::operator -= ( const InfInt& src )
+inline InfInt& InfInt::operator -= ( const InfInt& src )		// need optimization
 {
 	(*this) = (*this) - src;
 	return *this;
 }
 
-inline InfInt& InfInt::operator *= ( const InfInt& src )
+inline InfInt& InfInt::operator *= ( const InfInt& src )		// need optimization
 {
 	(*this) = (*this) * src;
 	return *this;
 }
 
 /*
-inline InfInt InfInt::Div( const InfInt& src, InfInt& result, InfInt& rest ) const;//
 
 inline InfInt InfInt::operator / ( const InfInt& src ) const;//
 inline InfInt InfInt::operator % ( const InfInt& src ) const;//
@@ -379,16 +441,15 @@ inline InfInt InfInt::lb() const
 	{
 		if( this->val.GetSize() )
 		{
-			InfInt dst( uint64( ( this->val.GetSize() * sizeof(uint64) * 8 ) ) );
-			for( ; dst > InfInt(0); dst -= InfInt(1) )
+			uint64 dst = this->val.val.size() * sizeof(uint64) * 8;
+			for( ; dst > 0; --dst )
 			{
-				if( this->val.GetBit( dst.ToULL() ) )
-					return dst;
+				if( this->val.GetBit( dst ) )
+					return InfInt(dst);
 			}
 		}
-		return InfInt();
 	}
-	return InfInt::Make( BoolTab(), false );
+	return InfInt(0);
 }
 
 /*

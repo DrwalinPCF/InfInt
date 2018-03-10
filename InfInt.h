@@ -52,7 +52,7 @@ public:
 	inline bool operator == ( const InfInt& src ) const;
 	inline bool operator != ( const InfInt& src ) const;
 	
-	inline InfInt Div( const InfInt& src, InfInt& result, InfInt& rest ) const;
+	inline bool Div( const InfInt& src, InfInt& result, InfInt& rest ) const;		// return if division is valid
 	
 	inline InfInt operator - ( void ) const;
 	inline InfInt operator + ( const InfInt& src ) const;

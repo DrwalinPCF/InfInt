@@ -101,12 +101,12 @@ int main()
 	b[0] = InfInt(tempu);
 	b[0] *= InfInt(3);
 	*/
-	
+	/*
 	a[0] = My::InfInt(~(uint64(0)));
 	a[0] += My::InfInt(30000);
 	b[0] = InfInt(~(uint64(0)));
 	b[0] += InfInt(30000);
-	
+	*/
 	int i;
 	InfInt counter = 0, errorCounter = 0;
 	
@@ -114,10 +114,20 @@ int main()
 	{
 		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
 		
-		a[0].val.Decrement();
-		--(b[0]);
+		//a[0].val.Decrement();
+		//--(b[0]);
 		
+		a[1] = My::InfInt(tempu);
+		b[1] = InfInt(tempu);
+		do
+			tempu = uint64(rand());
+		while( tempu == uint64(0) );
 		
+		a[2] = My::InfInt(tempu);
+		b[2] = InfInt(tempu);
+		My::InfInt tempinfint;
+		a[1].Div( a[2], a[3], tempinfint );
+		b[3] = b[1] / b[2];
 		
 		/*
 		a[1] = a[0];
