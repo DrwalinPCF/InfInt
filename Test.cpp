@@ -124,7 +124,7 @@ int main()
 		b[1] *= b[1] * b[1];
 		b[1] *= b[1] * b[1];
 		do
-		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
+			tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
 		while( tempu == uint64(0) );
 		
 		a[2] = My::InfInt(tempu) << 1;

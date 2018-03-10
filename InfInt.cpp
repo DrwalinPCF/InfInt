@@ -352,7 +352,7 @@ inline bool InfInt::Div( const InfInt& src, InfInt& result, InfInt& rest ) const
 			if( rest.val >= tempSrc )
 			{
 				rest.val -= tempSrc;
-				result.val += ( BoolTab(1) << move );
+				result.val.SetBit( move, true );
 			}
 			
 			if( move == 0 )
