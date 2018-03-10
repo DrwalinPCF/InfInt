@@ -119,12 +119,16 @@ int main()
 		
 		a[1] = My::InfInt(tempu);
 		b[1] = InfInt(tempu);
+		a[1] *= a[1] * a[1];
+		a[1] *= a[1] * a[1];
+		b[1] *= b[1] * b[1];
+		b[1] *= b[1] * b[1];
 		do
-			tempu = uint64(rand());
+		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
 		while( tempu == uint64(0) );
 		
-		a[2] = My::InfInt(tempu);
-		b[2] = InfInt(tempu);
+		a[2] = My::InfInt(tempu) << 1;
+		b[2] = InfInt(tempu) * 2;
 		My::InfInt tempinfint;
 		a[1].Div( a[2], a[3], tempinfint );
 		b[3] = b[1] / b[2];
@@ -190,7 +194,7 @@ int main()
 		
 		++counter;
 		
-		if( counter % InfInt(1000) == InfInt(0) )
+		if( counter % InfInt(10) == InfInt(0) )
 		{
 			std::cout << "\n Counter = " << counter << "   ErrorCounter = " << errorCounter << "   Log_10= " << "0";//log( InfInt(10), b[0] );
 			printf( "      My::InfInt = %s   InfInt = %s ", ToString(a[0]).c_str(), ToString(b[0]).c_str() );

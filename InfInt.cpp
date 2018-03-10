@@ -343,7 +343,7 @@ inline bool InfInt::Div( const InfInt& src, InfInt& result, InfInt& rest ) const
 		
 		rest = *this;
 		result = InfInt(0);
-		uint64 move = ( loga - logb ) + uint64(3);		// +3 - to be sure, and for tests what added number is the best
+		uint64 move = loga - logb;
 		
 		BoolTab tempSrc = src.val << move;
 		
