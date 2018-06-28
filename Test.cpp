@@ -87,149 +87,79 @@ std::string ToString( const My::InfInt& val )
 }
 
 #include <conio.h>
+#include <ctime>
 
 int main()
 {
+	srand( time( NULL ) );
+	
 	My::InfInt a[100];
 	InfInt b[100];
 	uint64 tempu = 0, tempu2, j;
 	tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
 	
-	/*
-	a[0] = My::InfInt(tempu);
-	a[0] *= My::InfInt(3);
-	b[0] = InfInt(tempu);
-	b[0] *= InfInt(3);
-	*/
-	/*
-	a[0] = My::InfInt(~(uint64(0)));
-	a[0] += My::InfInt(30000);
-	b[0] = InfInt(~(uint64(0)));
-	b[0] += InfInt(30000);
-	*/
 	int i;
 	InfInt counter = 0, errorCounter = 0;
+	
+	a[0] = 311;
+	b[0] = 311;
 	
 	while( true )//for( uint64 efbsuvesfjsakfhesabfjkkfba = 0; efbsuvesfjsakfhesabfjkkfba < 100; ++efbsuvesfjsakfhesabfjkkfba )
 	{
 		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
+		//tempu  = 311*311*311*311*311*311*311*311;
+		//tempu /= 311;
+		//tempu >>= 33;
 		
-		//a[0].val.Decrement();
-		//--(b[0]);
+		a[0] *= tempu;
+		b[0] *= tempu;
 		
-		a[1] = My::InfInt(tempu);
-		b[1] = InfInt(tempu);
-		a[1] *= a[1] * a[1];
-		a[1] *= a[1] * a[1];
-		b[1] *= b[1] * b[1];
-		b[1] *= b[1] * b[1];
-		do
-			tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
-		while( tempu == uint64(0) );
+		a[0] += tempu;
+		a[0] += a[0];
+		a[0] += a[0];
+		b[0] += tempu;
+		b[0] += b[0];
+		b[0] += b[0];
 		
-		a[2] = My::InfInt(tempu) << 1;
-		b[2] = InfInt(tempu) * 2;
-		My::InfInt tempinfint;
-		a[1].Div( a[2], a[3], tempinfint );
-		b[3] = b[1] / b[2];
+		
+		
+		
+		
+		
+		
 		
 		/*
-		a[1] = a[0];
-		a[6] = a[0] * My::InfInt(3);
-		a[0] = ( a[6] * My::InfInt(tempu) ) + My::InfInt(tempu);
-		a[2] =    a[1] -    a[0];
-		a[3] =  (-a[1]) - (-a[0]);
-		a[4] =    a[1] +    a[0];
-		a[5] =  (-a[1]) + (-a[0]);
-		a[7] =  (-a[1]) +  (a[0]);
-		a[8] =   (a[1]) + (-a[0]);
-		a[9] =   (a[1]) - (-a[0]);
-		a[10] = (-a[1]) -  (a[0]);
-		a[11] =    a[0] -    a[1];
-		a[12] =  (-a[0]) - (-a[1]);
-		a[13] =    a[0] +    a[1];
-		a[14] =  (-a[0]) + (-a[1]);
-		a[15] =  (-a[0]) +  (a[1]);
-		a[16] =   (a[0]) + (-a[1]);
-		a[17] =   (a[0]) - (-a[1]);
-		a[18] =  (-a[0]) -  (a[1]);
+		a[0] *= ( a[0] * a[0] );
+		a[1] = a[0] >> My::InfInt(113);
+		a[0].Div( a[1], a[2], a[3] );
 		
-		
-		b[1] = b[0];
-		b[6] = b[0] * InfInt(3);
-		b[0] = ( b[6] * InfInt(tempu) ) + InfInt(tempu);
-		
-		b[2] =    b[1] -    b[0];
-		b[3] =  (-b[1]) - (-b[0]);
-		b[4] =    b[1] +    b[0];
-		b[5] =  (-b[1]) + (-b[0]);
-		b[7] =  (-b[1]) +  (b[0]);
-		b[8] =   (b[1]) + (-b[0]);
-		b[9] =   (b[1]) - (-b[0]);
-		b[10] = (-b[1]) -  (b[0]);
-		b[11] =    b[0] -    b[1];
-		b[12] =  (-b[0]) - (-b[1]);
-		b[13] =    b[0] +    b[1];
-		b[14] =  (-b[0]) + (-b[1]);
-		b[15] =  (-b[0]) +  (b[1]);
-		b[16] =   (b[0]) + (-b[1]);
-		b[17] =   (b[0]) - (-b[1]);
-		b[18] =  (-b[0]) -  (b[1]);
+		b[0] *= ( b[0] * b[0] );
+		b[1] = b[0] / pow( 2, 113 );
+		b[2] = b[0] / b[1];
+		b[3] = b[0] % b[1];
 		*/
 		
-		
-		for( i = 0; i < 11; ++i )
+		for( i = 0; i < 100; ++i )
 		{
 			if( ToString( a[i] ) != ToString( b[i] ) )
 			{
+				++errorCounter;
 				printf( "\n " );
 				std::cout << ToString( a[i] );
 				printf( " == " );
 				std::cout << ToString( b[i] );
 				printf( "  : ( %i )", i );
-				++errorCounter;
 			}
 		}
 		
-		
 		++counter;
 		
-		if( counter % InfInt(10) == InfInt(0) )
+		if( counter % InfInt(1) == InfInt(0) )
 		{
-			std::cout << "\n Counter = " << counter << "   ErrorCounter = " << errorCounter << "   Log_10= " << "0";//log( InfInt(10), b[0] );
-			printf( "      My::InfInt = %s   InfInt = %s ", ToString(a[0]).c_str(), ToString(b[0]).c_str() );
+			std::cout << "\n Counter = " << counter << "   ErrorCounter = " << errorCounter << "   Log_10= " << log( InfInt(10), b[0] );
+//			printf( "      My::InfInt = %s   InfInt = %s ", ToString(a[0]).c_str(), ToString(b[0]).c_str() );
 		}
-		
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/*
-	InfInt a(0), b(0), c(0), d(0);
-	
-	a = Mul( InfInt(1000) );
-	b = Mul( InfInt(100) );
-	printf( "\n Before subtracting " );
-	
-	c = (-a) - (-b);
-	
-	a.ToString( str, 1000000-100 );
-	printf( "\n a = \"%s\" ", str );
-	b.ToString( str, 1000000-100 );
-	printf( "\n b = \"%s\" ", str );
-	c.ToString( str, 1000000-100 );
-	printf( "\n c = \"%s\" ", str );
-	c = a - b;
-	c.ToString( str, 1000000-100 );
-	printf( "\n c = \"%s\" ", str );
-	*/
 	
 	return 0;
 }

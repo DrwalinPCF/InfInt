@@ -18,6 +18,28 @@ inline void BoolTab::ClearLeadingZeros()
 	}
 }
 
+inline BoolTab BoolTab::MoveLeftByBlocks( const uint64 src ) const
+{
+	BoolTab dst;
+	dst.val.resize( this->val.size() + src, 0 );
+	memcpy( (&dst.val.front()) + src, &(this->val.front()), this->val.size()*sizeof(uint64) );
+	//memset( &dst.val.front(), 0, src * sizeof(uint64) );
+	
+	return dst;
+}
+
+inline BoolTab BoolTab::MoveRightByBlocks( const uint64 src ) const
+{
+	if( src >= this->val.size() )
+		return BoolTab();
+	
+	BoolTab dst;
+	dst.val.resize( this->val.size() - src );
+	memcpy( &dst.val.front(), (&this->val.front()) + src, this->val.size() - src );
+	
+	return dst;
+}
+
 inline void BoolTab::Clear()
 {
 	this->val.clear();
@@ -121,15 +143,22 @@ inline BoolTab BoolTab::operator << ( const uint64 src ) const
 	uint64 full = src / bits;
 	uint64 rest = src % bits;
 	
-	dst.val.resize( unsigned( this->val.size() + full + uint64(rest!=0) + 1 ) );
+	dst.val.resize( this->val.size() + full + uint64(rest!=0) + 1, 0 );
+	//memset( &(dst.val.front()), 0, dst.val.size()*sizeof(uint64) );
 	
-	memset( &(dst.val.front()), 0, dst.val.size()*sizeof(uint64) );
+	/*
+	for( uint64 i = 0; i < this->val.size(); ++i )
+		dst.val[i+full] = ( this->val[i] << rest ) | ( i ? 0 : ( this->val[i-1] >> (bits-rest) ) );
+	dst.val[ this->val.size() + full ] = this->val[ this->val.size() - 1 ] >> (bits-rest);
+	*/
+	
 	
 	for( uint64 i = 0; i < this->val.size(); ++i )
 		dst.val[i+full] |= this->val[i] << rest;
 	if( rest )
 		for( uint64 i = 0; i < this->val.size(); ++i )
 			dst.val[i+full+1] |= this->val[i] >> (bits-rest);
+	
 	
 	dst.ClearLeadingZeros();
 	return dst;
@@ -549,6 +578,7 @@ inline void BoolTab::FromData( const void * data, const uint64 bytes )
 
 BoolTab::BoolTab()
 {
+	this->val.resize( 0 );
 }
 
 BoolTab::BoolTab( const uint64 src )

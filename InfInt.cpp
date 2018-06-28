@@ -8,7 +8,7 @@
 namespace My
 {
 
-InfInt::InfInt( const BoolTab& sval, const bool spos )
+InfInt::InfInt( const BoolTab& sval, const bool spos = true )
 {
 	this->val = sval;
 	this->pos = spos;
@@ -283,20 +283,21 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 {
 	if( src.val.val.size() == 0 || this->val.val.size() == 0 )
 		return InfInt(0);
+	
 	InfInt dst(0);
-	uint64 a1, a2, b1, b2;
+	register uint64 a1, a2, b1, b2;
 	uint64 i, j;
 	
 	for( i = 0; i < this->val.val.size(); ++i )
 	{
-		a1 = this->val.val[i] & uint64( uint32(0)-uint32(1) );
-		a2 = ( this->val.val[i] - a1 ) >> uint64(32);		// & uint64( uint64( uint32(0)-uint32(1) ) << uint64(32) );
+		a1 = this->val.val[i] & 0xFFFFFFFF;
+		a2 = this->val.val[i] >> uint64(32);
 		for( j = 0; j < src.val.val.size(); ++j )
 		{
-			b1 = src.val.val[j] & uint64( uint32(0)-uint32(1) );
-			b2 = ( src.val.val[j] - b1 ) >> uint64(32);		// & uint64( uint64( uint32(0)-uint32(1) ) << uint64(32) );
+			b1 = src.val.val[j] & 0xFFFFFFFF;
+			b2 = src.val.val[j] >> uint64(32);
 			
-			dst.val = dst.val + ( ( (BoolTab(a1*b1)) + (BoolTab(a2*b1)<<uint64(32)) + (BoolTab(a1*b2)<<uint64(32)) + (BoolTab(a2*b2)<<uint64(64)) ) << ( (i+j)<<6 ) );	//  (i+j)<<6  <=>  (i+j)*64
+			dst.val = dst.val + ( ( (BoolTab(a1*b1)) + ( BoolTab(a2*b1) << uint64(32) ) + ( BoolTab(a1*b2) << uint64(32) ) + ( BoolTab(a2*b2) << uint64(64) ) ) << uint64((i+j)*64) );
 		}
 	}
 	
@@ -321,15 +322,15 @@ inline bool InfInt::Div( const InfInt& src, InfInt& result, InfInt& rest ) const
 		}
 		else if( loga == logb )
 		{
-			if( this->val > src.val )
+			if( this->val >= src.val )
 			{
 				result = InfInt(1);
 				rest.val = this->val - src.val;
 				
 				result.pos = !( this->pos ^ src.pos );
 				rest.pos = !( this->pos ^ src.pos );
-				return true;
 				printf( "\n I hope it work. Code: InfInt::Div::Test = 1\n" );
+				return true;
 			}
 			else
 			{
@@ -475,37 +476,53 @@ InfInt::InfInt()
 InfInt::InfInt( const unsigned int val )
 {
 	this->pos = true;
-	this->val.val.resize( 1 );
-	this->val.val.front() = uint64(val);
-	this->val.ClearLeadingZeros();
-	if( this->val.GetSize() == 0 )		this->pos = true;
+	if( val )
+	{
+		this->val.val.resize( 1 );
+		this->val.val.front() = uint64(val);
+	}
+	else
+	{
+		this->val.val.resize( 0 );
+	}
 }
 
 InfInt::InfInt( const unsigned long long int val )
 {
 	this->pos = true;
-	this->val.val.resize( 1 );
-	this->val.val.front() = val;
-	this->val.ClearLeadingZeros();
-	if( this->val.GetSize() == 0 )		this->pos = true;
-}
-
-InfInt::InfInt( const int val )
-{
-	this->val.val.resize( 1 );
-	if( val < 0 )
+	if( val )
 	{
-		this->pos = false;
-		this->val.val.front() = uint64(val*-1);
+		this->val.val.resize( 1 );
+		this->val.val.front() = val;
 	}
 	else
 	{
+		this->val.val.resize( 0 );
+	}
+}
+
+
+InfInt::InfInt( const int val )
+{
+	if( val < 0 )
+	{
+		this->pos = false;
+		this->val.val.resize( 1 );
+		this->val.val.front() = uint64(val*-1);
+	}
+	else if( val == 0 )
+	{
+		this->pos = true;
+		this->val.val.resize( 0 );
+	}
+	else
+	{
+		this->val.val.resize( 1 );
 		this->pos = true;
 		this->val.val.front() = uint64(val);
 	}
-	this->val.ClearLeadingZeros();
-	if( this->val.GetSize() == 0 )		this->pos = true;
 }
+
 
 };
 

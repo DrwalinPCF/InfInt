@@ -39,6 +39,9 @@ public:
 	
 	inline BoolTab& operator = ( const BoolTab& src );
 	
+	inline BoolTab MoveLeftByBlocks( const uint64 src ) const;
+	inline BoolTab MoveRightByBlocks( const uint64 src ) const;
+	
 	inline BoolTab operator ~ ( void ) const;
 	inline BoolTab operator & ( const BoolTab& src ) const;
 	inline BoolTab operator | ( const BoolTab& src ) const;
