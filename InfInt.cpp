@@ -285,11 +285,30 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 		return InfInt(0);
 	
 	InfInt dst(0);
-	register uint64 a1, a2, b1, b2;
+	//register uint64 a1, a2, b1, b2;
 	uint64 i, j;
+	BoolTab temp;
+	temp.val.resize( 2 );
 	
 	for( i = 0; i < this->val.val.size(); ++i )
 	{
+		register uint64 a = this->val.val[i];
+		for( j = 0; j < src.val.val.size(); ++j )
+		{
+			asm( "\n	movq %2, %%rax \n"
+					"	mulq %3 \n"
+					"	movq %%rax, %1 \n"
+					"	movq %%rdx, %0"
+				: "=m"(temp.val[1]) , "=m"(temp.val[0])
+				: "m"(a), "m"(src.val.val[j])
+				: "rax", "rdx"
+				);
+			
+			//dst.val = dst.val + temp.MoveLeftByBlocks(i+j);
+			dst.val = dst.val + ( temp << uint64((i+j)*64) );
+		}
+		
+		/*
 		a1 = this->val.val[i] & 0xFFFFFFFF;
 		a2 = this->val.val[i] >> uint64(32);
 		for( j = 0; j < src.val.val.size(); ++j )
@@ -299,6 +318,7 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 			
 			dst.val = dst.val + ( ( (BoolTab(a1*b1)) + ( BoolTab(a2*b1) << uint64(32) ) + ( BoolTab(a1*b2) << uint64(32) ) + ( BoolTab(a2*b2) << uint64(64) ) ) << uint64((i+j)*64) );
 		}
+		*/
 	}
 	
 	dst.pos = !( this->pos ^ src.pos );
