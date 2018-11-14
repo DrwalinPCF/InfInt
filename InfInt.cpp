@@ -204,8 +204,6 @@ inline InfInt InfInt::operator - ( void ) const
 	return InfInt::Make( this->val, !this->pos );
 }
 
-#define printf(x)
-
 inline InfInt InfInt::operator + ( const InfInt& src ) const
 {
 	if( this->val.val.size() == 0 )
@@ -279,44 +277,16 @@ inline InfInt InfInt::operator - ( const InfInt& src ) const
 
 inline InfInt InfInt::operator * ( const InfInt& src ) const//
 {
-	printf( "a" );
 	if( src.val.val.size() == 0 || this->val.val.size() == 0 )
 		return InfInt(0);
 	
-	InfInt dst(0);
-	dst.val.val.reserve( src.val.val.size() + this->val.val.size() + 3 );
+	InfInt dst;
+	dst.val.val.resize( src.val.val.size() + this->val.val.size() + 3, 0 );
 	
 #ifdef ENV64X
 	
-	/*
-	
-	register uint64 a1, a2, b1, b2;
-	uint64 i, j;
-	BoolTab temp;
-	temp.val.resize( 2 );
-	
-	for( i = 0; i < this->val.val.size(); ++i )
-	{
-		for( j = 0; j < src.val.val.size(); ++j )
-		{
-			asm( "\n	movq %2, %%rax \n"
-					"	mulq %3 \n"
-					"	movq %%rax, %1 \n"
-					"	movq %%rdx, %0"
-				: "=m"(a1) , "=m"(a2)
-				: "m"(this->val.val[i]), "m"(src.val.val[j])
-				: "rax", "rdx"
-				);
-			
-			dst.val = dst.val + ( ( ( BoolTab( a1 ) << uint64(64) ) + BoolTab( a2 ) ) << uint64( (i+j) * 64 ) );
-		}
-	}
-	
-	*/
-	
 	register uint64 a1, a2, b1, b2;
 	uint64 i, j, offset = 0, temp;
-	dst.val.val.resize( src.val.val.size() + this->val.val.size() + 13, 0 );
 	
 	for( i = 0; i < this->val.val.size(); ++i )
 	{
@@ -342,34 +312,8 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 			{
 				dst.val.val[offset+2]++;
 			}
-			
-			/*
-			temp = dst.val.val[offset] + a2;
-			if( temp < a2 || temp < dst.val.val[offset] )
-			{
-				dst.val.val[offset+1]++;
-				dst.val.val[offset] = temp;
-			}
-			else
-			{
-				dst.val.val[offset] = temp;
-			}
-			
-			temp = dst.val.val[offset+1] + a1;
-			if( temp < a1 || temp < dst.val.val[offset+1] )
-			{
-				dst.val.val[offset+2]++;
-				dst.val.val[offset+1] = temp;
-			}
-			else
-			{
-				dst.val.val[offset+1] = temp;
-			}
-			*/
 		}
 	}
-	
-	dst.val.ClearLeadingZeros();
 	
 #else
 	
@@ -391,6 +335,8 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 	}
 	
 #endif
+
+	dst.val.ClearLeadingZeros();
 	
 	dst.pos = !( this->pos ^ src.pos );
 	return dst;

@@ -8,13 +8,17 @@ inline void BoolTab::ClearLeadingZeros()
 {
 	if( this->val.size() )
 	{
-		uint64 i = this->val.size();
+		int64 i = this->val.size();
 		
-		for( i = this->val.size(); i > 0; --i )
-			if( this->val[i-1] != 0 )
-				break;
+		for( i = this->val.size()-1; i >= 0 && !(this->val[i]); --i );
 		
-		this->val.resize( i );
+		this->val.resize( i+1 );
+		/*
+		if( i <= 0 )
+			this->val.resize( 0 );
+		else
+			this->val.resize( i );
+		*/
 	}
 }
 
