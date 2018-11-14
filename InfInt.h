@@ -54,6 +54,8 @@ public:
 	
 	inline bool Div( const InfInt& src, InfInt& result, InfInt& rest ) const;		// return if division is valid
 	
+	static inline BoolTab Multiply( const unsigned long long int a, const unsigned long long int b );
+	
 	inline InfInt operator - ( void ) const;
 	inline InfInt operator + ( const InfInt& src ) const;
 	inline InfInt operator - ( const InfInt& src ) const;

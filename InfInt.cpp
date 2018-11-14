@@ -248,8 +248,6 @@ inline InfInt InfInt::operator + ( const InfInt& src ) const
 	return InfInt();
 }
 
-#define printf(x)
-
 inline InfInt InfInt::operator - ( const InfInt& src ) const
 {
 	if( src.val.val.size() == 0 )
@@ -279,13 +277,25 @@ inline InfInt InfInt::operator - ( const InfInt& src ) const
 	return InfInt();
 }
 
+inline BoolTab InfInt::Multiply( const unsigned long long int a, const unsigned long long int b )
+{
+	unsigned long long int a1, a2, b1, b2;
+	a1 = a & 0xFFFFFFFF;
+	a2 = a >> uint64(32);
+	b1 = b & 0xFFFFFFFF;
+	b2 = b >> uint64(32);
+	return BoolTab( a1 * b1 ) + ( BoolTab( a1 * b2 ) << 32 ) + ( BoolTab( a2 * b1 ) << 32 ) + ( BoolTab( a2 * b2 ) << 32 );
+}
+
 inline InfInt InfInt::operator * ( const InfInt& src ) const//
 {
+	printf( "a" );
 	if( src.val.val.size() == 0 || this->val.val.size() == 0 )
 		return InfInt(0);
 	
 	InfInt dst(0);
-	//register uint64 a1, a2, b1, b2;
+	dst.val.val.reserve( src.val.val.size() + this->val.val.size() + 3 );
+	register uint64 a1, a2, b1, b2;
 	uint64 i, j;
 	BoolTab temp;
 	temp.val.resize( 2 );
@@ -293,32 +303,38 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 	for( i = 0; i < this->val.val.size(); ++i )
 	{
 		register uint64 a = this->val.val[i];
+		/*
 		for( j = 0; j < src.val.val.size(); ++j )
 		{
+			
 			asm( "\n	movq %2, %%rax \n"
 					"	mulq %3 \n"
 					"	movq %%rax, %1 \n"
 					"	movq %%rdx, %0"
-				: "=m"(temp.val[1]) , "=m"(temp.val[0])
+				: "=m"(a1) , "=m"(a2)
 				: "m"(a), "m"(src.val.val[j])
 				: "rax", "rdx"
 				);
 			
 			//dst.val = dst.val + temp.MoveLeftByBlocks(i+j);
-			dst.val = dst.val + ( temp << uint64((i+j)*64) );
+			dst.val = dst.val + ( ( ( BoolTab( a1 ) << uint64(64) ) + BoolTab( a2 ) ) << uint64( (i+j) * 64 ) );
+			//dst.val = dst.val + ( temp << uint64( (i+j) * 64 ) );
 		}
+		*/
 		
-		/*
-		a1 = this->val.val[i] & 0xFFFFFFFF;
-		a2 = this->val.val[i] >> uint64(32);
+		
+		
+		a1 = a & 0xFFFFFFFF;
+		a2 = uint32( a >> uint64(32) );
+		
 		for( j = 0; j < src.val.val.size(); ++j )
 		{
 			b1 = src.val.val[j] & 0xFFFFFFFF;
-			b2 = src.val.val[j] >> uint64(32);
+			b2 = uint32( src.val.val[j] >> uint64(32) );
 			
 			dst.val = dst.val + ( ( (BoolTab(a1*b1)) + ( BoolTab(a2*b1) << uint64(32) ) + ( BoolTab(a1*b2) << uint64(32) ) + ( BoolTab(a2*b2) << uint64(64) ) ) << uint64((i+j)*64) );
 		}
-		*/
+		
 	}
 	
 	dst.pos = !( this->pos ^ src.pos );

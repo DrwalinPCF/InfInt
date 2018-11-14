@@ -32,9 +32,9 @@ std::string ToString( InfInt vals )
 	return dst;
 }
 
-My::InfInt Mul( My::InfInt pow )
+My::InfInt Mul( My::InfInt a, My::InfInt pow )
 {
-	My::InfInt a(10);
+	//My::InfInt a(10);
 	My::InfInt dst(0);
 	My::InfInt i(0);
 	for( ; i < pow; i = i + My::InfInt(1) )
@@ -111,8 +111,8 @@ int main()
 		//tempu /= 311;
 		//tempu >>= 33;
 		
-		a[0] *= tempu;
-		b[0] *= tempu;
+		a[0] *= My::InfInt( tempu );
+		b[0] *= InfInt( tempu );
 		
 //		a[0] += tempu;
 //		a[0] += a[0];
@@ -144,19 +144,22 @@ int main()
 			if( ToString( a[i] ) != ToString( b[i] ) )
 			{
 				++errorCounter;
-				printf( "\n " );
-				std::cout << ToString( a[i] );
-				printf( " == " );
-				std::cout << ToString( b[i] );
-				printf( "  : ( %i )", i );
+				//if( counter % InfInt(10) == InfInt(0) )
+				{
+					printf( "\n " );
+					std::cout << ToString( a[i] );
+					printf( " == " );
+					std::cout << ToString( b[i] );
+					printf( "  : ( %i )", i );
+				}
 			}
 		}
 		
 		++counter;
 		
-		if( counter % InfInt(1) == InfInt(0) )
+		//if( counter % InfInt(10) == InfInt(0) )
 		{
-			std::cout << "\n Counter = " << counter << "   ErrorCounter = " << errorCounter << "   Log_10= " << log( InfInt(10), b[0] );
+			std::cout << "\n Counter = " << counter << "   ErrorCounter = " << errorCounter << "   Log_10= " << log( InfInt(10), b[0] ) << "   Time: " << clock();
 //			printf( "      My::InfInt = %s   InfInt = %s ", ToString(a[0]).c_str(), ToString(b[0]).c_str() );
 		}
 	}
