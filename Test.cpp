@@ -1,4 +1,5 @@
 
+#define ENV64X
 #include "InfInt.cpp"
 
 #include "infint2.0.cpp"
@@ -91,6 +92,10 @@ std::string ToString( const My::InfInt& val )
 
 int main()
 {
+	/*
+	std::cout << "\n" << ToString( InfInt( uint64(int64(-1)) ) * InfInt( uint64(int64(-1)) ) ) << "\n";
+	*/
+	
 	srand( time( NULL ) );
 	
 	My::InfInt a[100];

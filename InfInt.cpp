@@ -277,16 +277,6 @@ inline InfInt InfInt::operator - ( const InfInt& src ) const
 	return InfInt();
 }
 
-inline BoolTab InfInt::Multiply( const unsigned long long int a, const unsigned long long int b )
-{
-	unsigned long long int a1, a2, b1, b2;
-	a1 = a & 0xFFFFFFFF;
-	a2 = a >> uint64(32);
-	b1 = b & 0xFFFFFFFF;
-	b2 = b >> uint64(32);
-	return BoolTab( a1 * b1 ) + ( BoolTab( a1 * b2 ) << 32 ) + ( BoolTab( a2 * b1 ) << 32 ) + ( BoolTab( a2 * b2 ) << 32 );
-}
-
 inline InfInt InfInt::operator * ( const InfInt& src ) const//
 {
 	printf( "a" );
@@ -295,6 +285,11 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 	
 	InfInt dst(0);
 	dst.val.val.reserve( src.val.val.size() + this->val.val.size() + 3 );
+	
+#ifdef ENV64X
+	
+	/*
+	
 	register uint64 a1, a2, b1, b2;
 	uint64 i, j;
 	BoolTab temp;
@@ -302,30 +297,89 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 	
 	for( i = 0; i < this->val.val.size(); ++i )
 	{
-		register uint64 a = this->val.val[i];
-		/*
 		for( j = 0; j < src.val.val.size(); ++j )
 		{
-			
 			asm( "\n	movq %2, %%rax \n"
 					"	mulq %3 \n"
 					"	movq %%rax, %1 \n"
 					"	movq %%rdx, %0"
 				: "=m"(a1) , "=m"(a2)
-				: "m"(a), "m"(src.val.val[j])
+				: "m"(this->val.val[i]), "m"(src.val.val[j])
 				: "rax", "rdx"
 				);
 			
-			//dst.val = dst.val + temp.MoveLeftByBlocks(i+j);
 			dst.val = dst.val + ( ( ( BoolTab( a1 ) << uint64(64) ) + BoolTab( a2 ) ) << uint64( (i+j) * 64 ) );
-			//dst.val = dst.val + ( temp << uint64( (i+j) * 64 ) );
 		}
-		*/
-		
-		
-		
-		a1 = a & 0xFFFFFFFF;
-		a2 = uint32( a >> uint64(32) );
+	}
+	
+	*/
+	
+	register uint64 a1, a2, b1, b2;
+	uint64 i, j, offset = 0, temp;
+	dst.val.val.resize( src.val.val.size() + this->val.val.size() + 13, 0 );
+	
+	for( i = 0; i < this->val.val.size(); ++i )
+	{
+		for( j = 0; j < src.val.val.size(); ++j, ++offset )
+		{
+			asm( "\n	movq %2, %%rax \n"
+					"	mulq %3 \n"
+					"	movq %%rax, %1 \n"
+					"	movq %%rdx, %0"
+				: "=m"(a1) , "=m"(a2)
+				: "m"(this->val.val[i]), "m"(src.val.val[j])
+				: "rax", "rdx"
+				);
+			
+			dst.val.val[offset] += a2;
+			if( dst.val.val[offset] < a2 )
+			{
+				dst.val.val[offset+1]++;
+			}
+			
+			dst.val.val[offset+1] += a1;
+			if( dst.val.val[offset+1] < a1 )
+			{
+				dst.val.val[offset+2]++;
+			}
+			
+			/*
+			temp = dst.val.val[offset] + a2;
+			if( temp < a2 || temp < dst.val.val[offset] )
+			{
+				dst.val.val[offset+1]++;
+				dst.val.val[offset] = temp;
+			}
+			else
+			{
+				dst.val.val[offset] = temp;
+			}
+			
+			temp = dst.val.val[offset+1] + a1;
+			if( temp < a1 || temp < dst.val.val[offset+1] )
+			{
+				dst.val.val[offset+2]++;
+				dst.val.val[offset+1] = temp;
+			}
+			else
+			{
+				dst.val.val[offset+1] = temp;
+			}
+			*/
+		}
+	}
+	
+	dst.val.ClearLeadingZeros();
+	
+#else
+	
+	register uint64 a1, a2, b1, b2;
+	uint64 i, j;
+	
+	for( i = 0; i < this->val.val.size(); ++i )
+	{
+		a1 = (this->val.val[i]) & 0xFFFFFFFF;
+		a2 = uint32( (this->val.val[i]) >> uint64(32) );
 		
 		for( j = 0; j < src.val.val.size(); ++j )
 		{
@@ -334,8 +388,9 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 			
 			dst.val = dst.val + ( ( (BoolTab(a1*b1)) + ( BoolTab(a2*b1) << uint64(32) ) + ( BoolTab(a1*b2) << uint64(32) ) + ( BoolTab(a2*b2) << uint64(64) ) ) << uint64((i+j)*64) );
 		}
-		
 	}
+	
+#endif
 	
 	dst.pos = !( this->pos ^ src.pos );
 	return dst;
