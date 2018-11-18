@@ -603,9 +603,56 @@ inline InfInt InfInt::lb() const
 	return InfInt(0);
 }
 
-/*
-static inline InfInt InfInt::sqrt( const InfInt& val );//
-*/
+
+
+
+
+inline InfInt InfInt::sqrt( const InfInt& val )
+{
+	if( val.val.val.size() == 0 )
+		return InfInt(0);
+	if( val.val.val.size() == 1 && val.val.val.front() < 4 )
+		return InfInt(1);
+	if( val.val.val.size() == 1 && val.val.val.front() < 9 )
+		return InfInt(2);
+	if( val.val.val.size() == 1 && val.val.val.front() < 16 )
+		return InfInt(3);
+	if( val.val.val.size() == 1 && val.val.val.front() < 25 )
+		return InfInt(4);
+	
+	InfInt ret( val >> (val.lb()/2) ), temp;
+	
+	uint64 i;
+	for( i = 0; i < 32; ++i )
+	{
+		if( ret.pos == false )
+			ret.pos = true;
+		if( ret == 0 )
+		{
+			break;
+		}
+		else
+		{
+			temp = ( ( ret + ( val / ret ) ) / 2 );
+			if( temp == ret )
+			{
+				ret = temp;
+				break;
+			}
+			ret = temp;
+		}
+	}
+	
+	fprintf( stderr, "\n Square root iteration numbers: %llu ", i );
+	
+	ret.pos = val.pos;
+	
+	return ret;
+}
+
+
+
+
 
 inline InfInt InfInt::log( const InfInt& base, const InfInt& val )
 {
@@ -641,8 +688,9 @@ InfInt::InfInt( const void * data, const uint64 bytes )
 	this->pos = true;
 	if( bytes > 0 )
 	{
-		this->val.val.resize( bytes );
+		this->val.val.resize( (bytes+8)/sizeof(uint64), 0 );
 		memcpy( &this->val.val.front(), data, bytes );
+		this->val.ClearLeadingZeros();
 	}
 	else
 	{

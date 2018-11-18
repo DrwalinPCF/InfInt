@@ -127,21 +127,31 @@ int main()
 	
 	while( true )
 	{
-		tempu = /*(uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) +*/ (uint64(rand())<<uint64(16)) + uint64(rand());
+		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
 		//if( tempu < 666311666311ll )
 		//	continue;
 		
-		a[0] *= tempu;
-		b[0] *= InfInt( tempu );
+		a[0] *= My::InfInt(tempu) + 311;
+//		b[0] *= InfInt( tempu );
 		
 		
 		
-		a[4] = My::InfInt::pow( a[0], 3 );
-//		b[4] = pow( b[0], InfInt(3) );
+		a[4] = a[0] * a[0];//My::InfInt::pow( a[0], 2 );
+//		b[4] = pow( b[0], InfInt(2) );
 		
 		
 		
+		a[3] = My::InfInt::sqrt( a[4] );
+		if( a[3] != a[0] )
+		{
+			std::cout << "\n\n Before:      " << a[0].ToStringTen();
+			std::cout << "\n Power: " << a[4].ToStringTen();
+			std::cout << "\n Square root: " << a[3].ToStringTen();
+		}
+		a[3] = 0;
 		
+		
+		/*
 		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
 		
 		if( tempu < 666 )
@@ -156,6 +166,9 @@ int main()
 			printf( "\n Divider error!" );
 		}
 		a[2] = 0;
+		*/
+		
+		
 		
 //		b[1] = b[0] / InfInt( ( InfInt(tempu) * InfInt(311) ) + InfInt(311) );
 		
@@ -195,7 +208,7 @@ int main()
 		++counter;
 		if( counter % 100 == 0 )
 		{
-			std::cout << "\n Number = " << a[0].ToStringTen();
+//			std::cout << "\n Number = " << a[0].ToStringTen();
 			std::cout << "\n lb = " << a[4].lb().ToULL() << "    Counter = " << counter << "   ErrorCounter = " << errorCounter << /*"   Log_10= " << log( InfInt(10), b[0] ) << */ "   Time: " << float(clock()) / 1000.0f << "    Bytes: " << a[4].GetBytesNumber();
 //			printf( "      My::InfInt = %s   InfInt = %s ", ToString(a[0]).c_str(), ToString(b[0]).c_str() );
 		}
