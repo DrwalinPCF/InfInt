@@ -21,6 +21,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <iostream>
+
 
 std::string ToString( InfInt vals )
 {
@@ -46,6 +48,7 @@ std::string ToString( InfInt vals )
 	}
 	return dst;
 }
+
 
 My::InfInt Mul( My::InfInt a, My::InfInt pow )
 {
@@ -106,14 +109,13 @@ std::string ToString( const My::InfInt& val )
 
 int main()
 {
-	/*
-	std::cout << "\n" << ToString( InfInt( uint64(int64(-1)) ) * InfInt( uint64(int64(-1)) ) ) << "\n";
-	*/
+	
+	
 	
 	srand( time( NULL ) );
 	
-	My::InfInt a[100];
-	InfInt b[100];
+	My::InfInt a[10];
+	InfInt b[10];
 	uint64 tempu = 0, tempu2, j;
 	tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
 	
@@ -125,13 +127,37 @@ int main()
 	
 	while( true )
 	{
-		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
+		tempu = /*(uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) +*/ (uint64(rand())<<uint64(16)) + uint64(rand());
+		//if( tempu < 666311666311ll )
+		//	continue;
 		
 		a[0] *= My::InfInt( tempu );
-		//b[0] *= InfInt( tempu );
+		b[0] *= InfInt( tempu );
 		
 		
 		
+		a[4] = My::InfInt::pow( a[0], My::InfInt(13) );
+		b[4] = pow( b[0], InfInt(13) );
+		
+		
+		
+		
+		tempu = (uint64(rand())<<uint64(48)) + (uint64(rand())<<uint64(32)) + (uint64(rand())<<uint64(16)) + uint64(rand());
+		
+		if( tempu < 666 )
+			continue;
+		
+		if( a[0].Div( My::InfInt( ( My::InfInt(tempu) * My::InfInt(311) ) + My::InfInt(311) ), a[1], a[2] ) )	// result, rest
+		{
+			//a[1] = a[1];
+		}
+		else
+		{
+			printf( "\n Divider error!" );
+		}
+		a[2] = 0;
+		
+		b[1] = b[0] / InfInt( ( InfInt(tempu) * InfInt(311) ) + InfInt(311) );
 		
 		
 		
@@ -148,28 +174,28 @@ int main()
 		b[3] = b[0] % b[1];
 		*/
 		
-		/*
-		for( i = 0; i < 100; ++i )
+		
+		for( i = 0; i < 10; ++i )
 		{
 			if( ToString( a[i] ) != ToString( b[i] ) )
 			{
 				++errorCounter;
 				//if( counter % InfInt(10) == InfInt(0) )
 				{
-					printf( "\n " );
+					printf( "\n a:" );
 					std::cout << ToString( a[i] );
-					printf( " == " );
+					printf( " == b:" );
 					std::cout << ToString( b[i] );
 					printf( "  : ( %i )", i );
 				}
 			}
 		}
-		*/
+		
 		
 		++counter;
-		if( counter % 10000 == 0 )
+		//if( counter % 10 == 0 )
 		{
-			std::cout << "\n Counter = " << counter << "   ErrorCounter = " << errorCounter << /*"   Log_10= " << log( InfInt(10), b[0] ) << */ "   Time: " << clock();
+			std::cout << "\n lb = " << a[4].lb().ToULL() << "    Counter = " << counter << "   ErrorCounter = " << errorCounter << /*"   Log_10= " << log( InfInt(10), b[0] ) << */ "   Time: " << float(clock()) / 1000.0f << "    Bytes: " << a[4].GetBytesNumber();
 //			printf( "      My::InfInt = %s   InfInt = %s ", ToString(a[0]).c_str(), ToString(b[0]).c_str() );
 		}
 	}

@@ -1,4 +1,7 @@
-
+/*
+	Copyright 2018 by Marek Zalewski aka Drwalin
+*/
+	
 #ifndef BOOLTAB_CPP
 #define BOOLTAB_CPP
 
@@ -596,6 +599,11 @@ BoolTab::BoolTab( const uint64 src )
 	{
 		this->val.clear();
 	}
+}
+
+BoolTab::~BoolTab()
+{
+	this->val.clear();
 }
 
 #endif

@@ -1,3 +1,7 @@
+/*
+	Copyright 2018 by Marek Zalewski aka Drwalin
+*/
+	
 #include <string>
 
 #ifndef INFINT_H
@@ -5,6 +9,10 @@
 
 #include "BoolTab.h"
 #include <cstdio>
+
+#include <cstdlib>
+
+#include <cmath>
 
 namespace My
 {
@@ -82,6 +90,7 @@ public:
 	
 	InfInt();
 	
+	InfInt( const InfInt & other );
 	InfInt( const char * str );
 	InfInt( const void * data, const uint64 bytes );
 	InfInt( const long long int val );
@@ -96,49 +105,9 @@ public:
 	InfInt( const BoolTab& sval, const bool spos );
 	static inline InfInt Make( const BoolTab& sval, const bool spos );
 	
-												static std::string ToString( const My::InfInt& val )
-												{
-													char str[1000000];
-													val.ToString( str, 1000000-100 );
-													std::vector < unsigned int > ch;
-													std::string dst = "";
-													
-													bool stillZeros = true;
-													
-													
-													
-													for( int i = 0; str[i]; ++i )
-													{
-														if( str[i] == '-' )
-														{
-															dst = "-";
-															continue;
-														}
-														if( stillZeros )
-														{
-															if( str[i] != '0' )
-																stillZeros = false;
-															else
-																continue;
-														}
-														if( str[i] >= '0' && str[i] <= '9' )
-															ch.insert( ch.begin(), (unsigned int)(str[i]-'0') );
-														else
-															ch.insert( ch.begin(), (unsigned int)(str[i]+10-'A') );
-													}
-													
-													while( ch.size() )
-													{
-														if( ch.back() < 10 )
-															dst.append( 1, (char)(ch.back()+'0') );
-														else
-															dst.append( 1, (char)((ch.back()-10)+'A') );
-														ch.resize( ch.size()-1 );
-													}
-													return dst;
-													
-													
-												}
+	static std::string ToStringHex( const My::InfInt& val );
+	static std::string ToStringTen( const My::InfInt& val );
+	
 };
 
 

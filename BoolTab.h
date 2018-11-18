@@ -1,4 +1,7 @@
-
+/*
+	Copyright 2018 by Marek Zalewski aka Drwalin
+*/
+	
 #ifndef BOOLTAB_H
 #define BOOLTAB_H
 
@@ -74,6 +77,7 @@ public:
 	
 	BoolTab();
 	BoolTab( const uint64 src );
+	~BoolTab();
 };
 
 #endif

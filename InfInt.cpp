@@ -1,3 +1,6 @@
+/*
+	Copyright 2018 by Marek Zalewski aka Drwalin
+*/
 
 #ifndef INFINT_CPP
 #define INFINT_CPP
@@ -280,24 +283,27 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 	if( src.val.val.size() == 0 || this->val.val.size() == 0 )
 		return InfInt(0);
 	
-	InfInt dst;
-	dst.val.val.resize( src.val.val.size() + this->val.val.size() + 3, 0 );
+	InfInt dst(0);
+	
+	dst.val.val.resize( src.val.val.size() + this->val.val.size() + 17, 0 );
 	
 #ifdef ENV64X
 	
-	register uint64 a1, a2, b1, b2;
+	uint64 a1, a2, b1, b2;
 	uint64 i, j, offset = 0, temp;
 	
 	for( i = 0; i < this->val.val.size(); ++i )
 	{
-		for( j = 0; j < src.val.val.size(); ++j, ++offset )
+		b1 = this->val.val[i];
+		for( j = 0, offset = i; j < src.val.val.size(); ++j, ++offset )
 		{
+			b2 = src.val.val[j];
 			asm( "\n	movq %2, %%rax \n"
 					"	mulq %3 \n"
 					"	movq %%rax, %1 \n"
 					"	movq %%rdx, %0"
 				: "=m"(a1) , "=m"(a2)
-				: "m"(this->val.val[i]), "m"(src.val.val[j])
+				: "m"(b1), "m"(b2)
 				: "rax", "rdx"
 				);
 			
@@ -317,7 +323,7 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 	
 #else
 	
-	register uint64 a1, a2, b1, b2;
+	uint64 a1, a2, b1, b2;
 	uint64 i, j;
 	
 	for( i = 0; i < this->val.val.size(); ++i )
@@ -335,11 +341,12 @@ inline InfInt InfInt::operator * ( const InfInt& src ) const//
 	}
 	
 #endif
-
+	
 	dst.val.ClearLeadingZeros();
 	
 	dst.pos = !( this->pos ^ src.pos );
-	return dst;
+	
+	return InfInt(dst);
 }
 
 inline bool InfInt::Div( const InfInt& src, InfInt& result, InfInt& rest ) const
@@ -422,18 +429,59 @@ inline InfInt& InfInt::operator -= ( const InfInt& src )		// need optimization
 
 inline InfInt& InfInt::operator *= ( const InfInt& src )		// need optimization
 {
-	(*this) = (*this) * src;
+	InfInt temp = (*this) * src;
+	*this = temp;
 	return *this;
 }
 
-/*
+inline InfInt InfInt::operator / ( const InfInt& src ) const
+{
+	InfInt a, b;
+	if( Div( src, a, b ) )
+	{
+		return a;
+	}
+	return InfInt(0);
+}
 
-inline InfInt InfInt::operator / ( const InfInt& src ) const;//
-inline InfInt InfInt::operator % ( const InfInt& src ) const;//
+inline InfInt InfInt::operator % ( const InfInt& src ) const
+{
+	InfInt a, b;
+	if( Div( src, a, b ) )
+	{
+		return b;
+	}
+	return InfInt(0);
+}
 
-inline InfInt& InfInt::operator /= ( const InfInt& src );//
-inline InfInt& InfInt::operator %= ( const InfInt& src );//
-*/
+inline InfInt& InfInt::operator /= ( const InfInt& src )
+{
+	InfInt a, b;
+	if( Div( src, a, b ) )
+	{
+		*this = a;
+	}
+	else
+	{
+		*this = InfInt(0);
+	}
+	return *this;
+}
+
+inline InfInt& InfInt::operator %= ( const InfInt& src )
+{
+	InfInt a, b;
+	if( Div( src, a, b ) )
+	{
+		*this = b;
+	}
+	else
+	{
+		*this = InfInt(0);
+	}
+	return *this;
+}
+
 
 inline unsigned long long int InfInt::ToULL() const
 {
@@ -461,16 +509,69 @@ inline unsigned long long int InfInt::Size() const
 
 inline void InfInt::ToString( char * str, const unsigned long long int len ) const
 {
-	// only hexadecimal now
-	uint64 i = 0;
+	uint64 i = 0, l = len / 16;
 	
 	if( !this->pos )
 		str[0] = '-';
-	for( ; i < this->val.GetSize(); ++i )
+	for( ; i < this->val.GetSize() && i < l; ++i )
 	{
 		sprintf( str+(i*16)+(this->pos?uint64(0):uint64(1)), "%16.16llX", this->val.val[(this->val.val.size()-1)-i] );
 	}
 	str[i*16+(this->pos?uint64(0):uint64(1))] = 0;
+}
+
+std::string InfInt::ToStringHex( const My::InfInt& val )
+{
+	uint64 size = ( val.lb().ToULL() / 64 ) + 64;
+	char * str = (char*)malloc( size );
+	val.ToString( str, size - 20 );
+	std::vector < unsigned int > ch;
+	std::string dst = "";
+	
+	bool stillZeros = true;
+	
+	for( int i = 0; str[i]; ++i )
+	{
+		if( str[i] == '-' )
+		{
+			dst = "-";
+			continue;
+		}
+		if( stillZeros )
+		{
+			if( str[i] != '0' )
+				stillZeros = false;
+			else
+				continue;
+		}
+		if( str[i] >= '0' && str[i] <= '9' )
+			ch.insert( ch.begin(), (unsigned int)(str[i]-'0') );
+		else
+			ch.insert( ch.begin(), (unsigned int)(str[i]+10-'A') );
+	}
+	
+	while( ch.size() )
+	{
+		if( ch.back() < 10 )
+			dst.append( 1, (char)(ch.back()+'0') );
+		else
+			dst.append( 1, (char)((ch.back()-10)+'A') );
+		ch.resize( ch.size()-1 );
+	}
+	
+	free( str );
+	
+	return dst;
+}
+
+std::string InfInt::ToStringTen( const My::InfInt& val )
+{
+	
+	
+	
+	
+	
+	return "";
 }
 
 inline InfInt InfInt::lb() const
@@ -479,7 +580,7 @@ inline InfInt InfInt::lb() const
 	{
 		if( this->val.GetSize() )
 		{
-			uint64 dst = this->val.val.size() * sizeof(uint64) * 8;
+			uint64 dst = ( this->val.val.size() * ( sizeof(uint64) * 8 ) ) - 1;
 			for( ; dst > 0; --dst )
 			{
 				if( this->val.GetBit( dst ) )
@@ -491,18 +592,81 @@ inline InfInt InfInt::lb() const
 }
 
 /*
-static inline InfInt InfInt::pow( const InfInt& val, const InfInt& exp );//
 static inline InfInt InfInt::sqrt( const InfInt& val );//
-static inline InfInt InfInt::log( const InfInt& base, const InfInt& val );//
+*/
 
+inline InfInt InfInt::log( const InfInt& base, const InfInt& val )
+{
+	InfInt ret = val.lb();
+	ret *= int64( std::log( 2.0 ) * 10000000.0 );
+	ret /= int64( std::log( (double)base.ToULL() ) * 10000000.0 );
+	return ret;
+}
+
+inline InfInt InfInt::pow( const InfInt& val, const InfInt& exp )
+{
+	InfInt ret = 1;
+	InfInt temp = val, temp2;
+	uint64 i, max = exp.lb().ToULL();
+	for( i = 0; i <= max; ++i )
+	{
+		if( exp.val.GetBit( i ) )
+		{
+			ret = ( ret * temp );
+		}
+		temp2 = temp;
+		temp = ( temp * temp2 );
+	}
+	return ret;
+}
+
+/*
 InfInt::InfInt( const char * str );//
 InfInt::InfInt( const void * data, const uint64 bytes );//
-InfInt::InfInt( const long long int val );//
-InfInt::InfInt( const short val );//
-InfInt::InfInt( const char val );//
-InfInt::InfInt( const unsigned short val );//
-InfInt::InfInt( const unsigned char val );//
 */
+
+InfInt::InfInt( const int64 val )
+{
+	if( val != 0 )
+	{
+		this->val.val.resize( 1 );
+		this->val.val.front() = uint64(val);
+		if( val < 0 )
+		{
+			this->pos = false;
+			this->val.val.front() = uint64( val * int64(-1) );
+		}
+		else
+		{
+			this->val.val.front() = uint64( val );
+			this->pos = true;
+		}
+	}
+	else
+	{
+		this->val.Clear();
+	}		
+}
+
+InfInt::InfInt( const short val )
+{
+	*this = int64(val);
+}
+
+InfInt::InfInt( const char val )
+{
+	*this = int64(val);
+}
+
+InfInt::InfInt( const unsigned short val )
+{
+	*this = uint64(val);
+}
+
+InfInt::InfInt( const unsigned char val )
+{
+	*this = uint64(val);
+}
 
 InfInt::InfInt()
 {
@@ -520,11 +684,11 @@ InfInt::InfInt( const unsigned int val )
 	}
 	else
 	{
-		this->val.val.resize( 0 );
+		this->val.Clear();
 	}
 }
 
-InfInt::InfInt( const unsigned long long int val )
+InfInt::InfInt( const uint64 val )
 {
 	this->pos = true;
 	if( val )
@@ -534,7 +698,7 @@ InfInt::InfInt( const unsigned long long int val )
 	}
 	else
 	{
-		this->val.val.resize( 0 );
+		this->val.Clear();
 	}
 }
 
@@ -558,6 +722,12 @@ InfInt::InfInt( const int val )
 		this->pos = true;
 		this->val.val.front() = uint64(val);
 	}
+}
+
+InfInt::InfInt( const InfInt & other )
+{
+	this->val = other.val;
+	this->pos = other.pos;
 }
 
 
