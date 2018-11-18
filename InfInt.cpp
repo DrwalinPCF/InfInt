@@ -603,10 +603,6 @@ inline InfInt InfInt::lb() const
 	return InfInt(0);
 }
 
-
-
-
-
 inline InfInt InfInt::sqrt( const InfInt& val )
 {
 	if( val.val.val.size() == 0 )
@@ -650,10 +646,6 @@ inline InfInt InfInt::sqrt( const InfInt& val )
 	return ret;
 }
 
-
-
-
-
 inline InfInt InfInt::log( const InfInt& base, const InfInt& val )
 {
 	InfInt ret = val.lb();
@@ -679,9 +671,112 @@ inline InfInt InfInt::pow( const InfInt& val, const InfInt& exp )
 	return ret;
 }
 
-/*
-InfInt::InfInt( const char * str );//
-*/
+
+
+
+
+InfInt::InfInt( std::string str )
+{
+	this->pos = true;
+	this->val.Clear();
+	
+	if( str.size() > 0 )
+	{
+		if( str[0] == '-' )
+		{
+			this->pos = false;
+			str.erase( str.erase( str.begin() );
+		}
+		else if( str[0] == '+' )
+		{
+			str.erase( str.erase( str.begin() );
+		}
+		
+		if( str.size() == 0 )
+		{
+			this->pos = true;
+			return;
+		}
+		
+		// default using base of 10
+		if( str.size() == 1 )
+		{
+			this->val.val.resize( 1 );
+			if( str[0] >= '0' && str[0] <= '9' )
+			{
+				this->val.val.front() = str[0] - '0';
+			}
+			else if( str[0] >= 'a' && str[0] <= 'f' )
+			{
+				this->val.val.front() = 10 + str[0] - 'a';
+			}
+			else if( str[0] >= 'A' && str[0] <= 'F' )
+			{
+				this->val.val.front() = 10 + str[0] - 'A';
+			}
+		}
+		else
+		{
+			if( ( str[0] == '0' && ( str[0] == 'X' || str[0] == 'x' ) ) || ( str.back() == 'h' || str.back() == 'H' ) )
+			{
+				if( str.back() == 'h' || str.back() == 'H' )
+				{
+					str.erase( str.erase( str.end() - 1, str.end() );
+				}
+				else
+				{
+					str.erase( str.erase( str.begin(), str.begin() + 2 );
+				}
+				
+				
+				
+				
+				
+			}
+			else if( str.back() == 'b' || str.back() == 'B' )
+			{
+				str.erase( str.erase( str.end() - 1, str.end() );
+				
+				uint64 temp, len;
+				len = str.size();
+				
+				for( i = 0; i < len; i += 64 )
+				{
+					
+				}
+				
+				if( len%64 )
+				{
+					
+				}
+				
+				
+			}
+			else
+			{
+				InfInt powerOfTenMultiplier;
+				uint64 p = str.find( "e+" );
+				if( p != std::string::npos )
+				{
+					printf( "\n std::string( str.c_str() + p + 2 ) = %s ", std::string( str.c_str() + p + 2 ).c_str() );
+					powerOfTenMultiplier = InfInt( std::string( str.c_str() + p + 2 ) );
+				}
+				
+				
+				
+				
+				
+				
+				
+				
+			}
+		}
+	}
+}
+
+
+
+
 
 InfInt::InfInt( const void * data, const uint64 bytes )
 {

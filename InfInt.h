@@ -91,7 +91,7 @@ public:
 	InfInt();
 	
 	InfInt( const InfInt & other );
-	InfInt( const char * str );
+	InfInt( std::string str );
 	InfInt( const void * data, const uint64 bytes );		// always positive number
 	InfInt( const long long int val );
 	InfInt( const int val );
