@@ -373,7 +373,6 @@ inline bool InfInt::Div( const InfInt& src, InfInt& result, InfInt& rest ) const
 				
 				result.pos = !( this->pos ^ src.pos );
 				rest.pos = !( this->pos ^ src.pos );
-				printf( "\n I hope it work. Code: InfInt::Div::Test = 1\n" );
 				return true;
 			}
 			else
@@ -564,14 +563,27 @@ std::string InfInt::ToStringHex( const My::InfInt& val )
 	return dst;
 }
 
-std::string InfInt::ToStringTen( const My::InfInt& val )
+std::string InfInt::ToStringTen() const
 {
+	InfInt a(*this), divided, rest;
+	const InfInt ten(10);
+	std::string ret = "";
+	a.pos = true;
 	
+	if( a.val.val.size() == 0 )
+		return "0";
 	
+	while( a > 0 )
+	{
+		a.Div( ten, divided, rest );
+		ret = std::string(1,char('0'+rest.ToULL())) + ret;
+		a = divided;
+	}
 	
+	if( this->pos == false )
+		ret = std::string("-") + ret;
 	
-	
-	return "";
+	return ret;
 }
 
 inline InfInt InfInt::lb() const
@@ -622,8 +634,21 @@ inline InfInt InfInt::pow( const InfInt& val, const InfInt& exp )
 
 /*
 InfInt::InfInt( const char * str );//
-InfInt::InfInt( const void * data, const uint64 bytes );//
 */
+
+InfInt::InfInt( const void * data, const uint64 bytes )
+{
+	this->pos = true;
+	if( bytes > 0 )
+	{
+		this->val.val.resize( bytes );
+		memcpy( &this->val.val.front(), data, bytes );
+	}
+	else
+	{
+		this->val.val.clear();
+	}
+}
 
 InfInt::InfInt( const int64 val )
 {

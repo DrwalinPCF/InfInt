@@ -92,7 +92,7 @@ public:
 	
 	InfInt( const InfInt & other );
 	InfInt( const char * str );
-	InfInt( const void * data, const uint64 bytes );
+	InfInt( const void * data, const uint64 bytes );		// always positive number
 	InfInt( const long long int val );
 	InfInt( const int val );
 	InfInt( const short val );
@@ -106,7 +106,7 @@ public:
 	static inline InfInt Make( const BoolTab& sval, const bool spos );
 	
 	static std::string ToStringHex( const My::InfInt& val );
-	static std::string ToStringTen( const My::InfInt& val );
+	std::string ToStringTen() const;
 	
 };
 

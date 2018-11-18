@@ -291,6 +291,8 @@ inline bool BoolTab::operator < ( const BoolTab& src ) const
 		return true;
 	if( this->val.size() > src.val.size() )
 		return false;
+	if( this->val.size() == 0 )
+		return false;
 	for( i = this->val.size()-1; i > 0; --i )
 	{
 		if( this->val[i] < src.val[i] )
@@ -310,6 +312,8 @@ inline bool BoolTab::operator <= ( const BoolTab& src ) const
 		return true;
 	if( this->val.size() > src.val.size() )
 		return false;
+	if( this->val.size() == 0 )
+		return false;
 	for( i = this->val.size()-1; i > 0; --i )
 	{
 		if( this->val[i] < src.val[i] )
@@ -324,11 +328,13 @@ inline bool BoolTab::operator <= ( const BoolTab& src ) const
 
 inline bool BoolTab::operator > ( const BoolTab& src ) const
 {
-	uint64 i;
 	if( this->val.size() > src.val.size() )
 		return true;
 	if( this->val.size() < src.val.size() )
 		return false;
+	if( this->val.size() == 0 )
+		return false;
+	uint64 i;
 	for( i = this->val.size()-1; i > 0; --i )
 	{
 		if( this->val[i] > src.val[i] )
@@ -336,7 +342,7 @@ inline bool BoolTab::operator > ( const BoolTab& src ) const
 		if( this->val[i] < src.val[i] )
 			return false;
 	}
-	if( this->val[i] > src.val[i] )
+	if( this->val[0] > src.val[0] )
 		return true;
 	return false;
 }
@@ -347,6 +353,8 @@ inline bool BoolTab::operator >= ( const BoolTab& src ) const
 	if( this->val.size() > src.val.size() )
 		return true;
 	if( this->val.size() < src.val.size() )
+		return false;
+	if( this->val.size() == 0 )
 		return false;
 	for( i = this->val.size()-1; i > 0; --i )
 	{

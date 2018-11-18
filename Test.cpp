@@ -131,13 +131,13 @@ int main()
 		//if( tempu < 666311666311ll )
 		//	continue;
 		
-		a[0] *= My::InfInt( tempu );
+		a[0] *= tempu;
 		b[0] *= InfInt( tempu );
 		
 		
 		
-		a[4] = My::InfInt::pow( a[0], My::InfInt(13) );
-		b[4] = pow( b[0], InfInt(13) );
+		a[4] = My::InfInt::pow( a[0], 3 );
+//		b[4] = pow( b[0], InfInt(3) );
 		
 		
 		
@@ -147,7 +147,7 @@ int main()
 		if( tempu < 666 )
 			continue;
 		
-		if( a[0].Div( My::InfInt( ( My::InfInt(tempu) * My::InfInt(311) ) + My::InfInt(311) ), a[1], a[2] ) )	// result, rest
+		if( a[0].Div( My::InfInt( ( My::InfInt(tempu) * 311 ) + 311 ), a[1], a[2] ) )	// result, rest
 		{
 			//a[1] = a[1];
 		}
@@ -157,7 +157,7 @@ int main()
 		}
 		a[2] = 0;
 		
-		b[1] = b[0] / InfInt( ( InfInt(tempu) * InfInt(311) ) + InfInt(311) );
+//		b[1] = b[0] / InfInt( ( InfInt(tempu) * InfInt(311) ) + InfInt(311) );
 		
 		
 		
@@ -174,27 +174,28 @@ int main()
 		b[3] = b[0] % b[1];
 		*/
 		
-		
+/*		
 		for( i = 0; i < 10; ++i )
 		{
-			if( ToString( a[i] ) != ToString( b[i] ) )
+			if( a[i].ToStringTen() != b[i].toString() )
 			{
 				++errorCounter;
 				//if( counter % InfInt(10) == InfInt(0) )
 				{
 					printf( "\n a:" );
-					std::cout << ToString( a[i] );
+					std::cout << a[i].ToStringTen();
 					printf( " == b:" );
-					std::cout << ToString( b[i] );
+					std::cout << b[i].toString();
 					printf( "  : ( %i )", i );
 				}
 			}
 		}
-		
+*/		
 		
 		++counter;
-		//if( counter % 10 == 0 )
+		if( counter % 100 == 0 )
 		{
+			std::cout << "\n Number = " << a[0].ToStringTen();
 			std::cout << "\n lb = " << a[4].lb().ToULL() << "    Counter = " << counter << "   ErrorCounter = " << errorCounter << /*"   Log_10= " << log( InfInt(10), b[0] ) << */ "   Time: " << float(clock()) / 1000.0f << "    Bytes: " << a[4].GetBytesNumber();
 //			printf( "      My::InfInt = %s   InfInt = %s ", ToString(a[0]).c_str(), ToString(b[0]).c_str() );
 		}
