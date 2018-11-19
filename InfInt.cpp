@@ -685,11 +685,12 @@ InfInt::InfInt( std::string str )
 		if( str[0] == '-' )
 		{
 			this->pos = false;
-			str.erase( str.erase( str.begin() );
+			str.erase( str.begin() );
 		}
 		else if( str[0] == '+' )
 		{
-			str.erase( str.erase( str.begin() );
+			this->pos = true;
+			str.erase( str.begin() );
 		}
 		
 		if( str.size() == 0 )
@@ -698,7 +699,6 @@ InfInt::InfInt( std::string str )
 			return;
 		}
 		
-		// default using base of 10
 		if( str.size() == 1 )
 		{
 			this->val.val.resize( 1 );
@@ -717,42 +717,73 @@ InfInt::InfInt( std::string str )
 		}
 		else
 		{
-			if( ( str[0] == '0' && ( str[0] == 'X' || str[0] == 'x' ) ) || ( str.back() == 'h' || str.back() == 'H' ) )
+			if( ( str[0] == '0' && ( str[1] == 'X' || str[1] == 'x' ) ) || ( str.back() == 'h' || str.back() == 'H' ) )		// hexadecimal
 			{
 				if( str.back() == 'h' || str.back() == 'H' )
 				{
-					str.erase( str.erase( str.end() - 1, str.end() );
+					str.erase( str.end() - 1, str.end() );
 				}
 				else
 				{
-					str.erase( str.erase( str.begin(), str.begin() + 2 );
+					str.erase( str.begin(), str.begin() + 2 );
 				}
+				
+				fprintf( stderr, "\n\"%s\"", str.c_str() );
+				
+				
+				// inefficient:
+				
+				uint64 i;
+				for( i = 0; i < str.size(); ++i )
+				{
+					*this <<= 4;
+					*this += InfInt( ( str[i] <= '9' ) ? str[i]-'0' : ( (str[i] <= 'F' ) ? str[i]+10-'A' : str[i]+10-'a' ) );
+				}
+				
+				
+				
+				
+				// efficient:
 				
 				
 				
 				
 				
 			}
-			else if( str.back() == 'b' || str.back() == 'B' )
+			else if( str.back() == 'b' || str.back() == 'B' )		// binary
 			{
-				str.erase( str.erase( str.end() - 1, str.end() );
+				str.erase( str.end() - 1, str.end() );
 				
-				uint64 temp, len;
-				len = str.size();
 				
-				for( i = 0; i < len; i += 64 )
+				// inefficient:
+				
+				uint64 i;
+				for( i = 0; i < str.size(); ++i )
+				{
+					this->val <<= 1;
+					this->val += BoolTab( str[i] - '0' );
+				}
+				
+				
+				
+				
+				// efficient:
+				
+				uint64 temp;
+				
+				for( i = 0; i < str.size(); i += 64 )
 				{
 					
 				}
 				
-				if( len%64 )
+				if( str.size() % 64 != 0 )
 				{
 					
 				}
 				
 				
 			}
-			else
+			else		// tenth
 			{
 				InfInt powerOfTenMultiplier;
 				uint64 p = str.find( "e+" );
@@ -760,15 +791,29 @@ InfInt::InfInt( std::string str )
 				{
 					printf( "\n std::string( str.c_str() + p + 2 ) = %s ", std::string( str.c_str() + p + 2 ).c_str() );
 					powerOfTenMultiplier = InfInt( std::string( str.c_str() + p + 2 ) );
+					str.erase( str.begin() + p, str.end() );
+				}
+				
+				uint64 i;
+				
+				// inefficient:
+				for( i = 0; i < str.size(); ++i )
+				{
+					*this = ( *this * 10 ) + InfInt( str[i]-'0' );
 				}
 				
 				
+				// efficient:
 				
 				
 				
 				
 				
 				
+				
+				
+				
+				*this *= My::InfInt::pow( 10, powerOfTenMultiplier );
 			}
 		}
 	}

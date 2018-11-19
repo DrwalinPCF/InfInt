@@ -109,9 +109,6 @@ std::string ToString( const My::InfInt& val )
 
 int main()
 {
-	
-	
-	
 	srand( time( NULL ) );
 	
 	My::InfInt a[10];
